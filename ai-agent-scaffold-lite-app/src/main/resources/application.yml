@@ -4,3 +4,12 @@ spring:
     import: optional:file:./.env[.properties]
   profiles:
     active: dev
+
+# RAG 文档切分配置
+rag:
+  chunking:
+    target-tokens: 600
+    max-tokens: 800
+    overlap-tokens: 100
+    version: v1
+    encoding: CL100K_BASE

@@ -1,7 +1,11 @@
 package cn.bugstack.ai.test.domain.rag;
 
 import cn.bugstack.ai.domain.rag.adapter.port.IDocumentCleanerPort;
+import cn.bugstack.ai.domain.rag.adapter.port.IDocumentChunkerPort;
 import cn.bugstack.ai.domain.rag.adapter.port.IDocumentParserPort;
+import cn.bugstack.ai.domain.rag.model.entity.DocumentChunkingCommandEntity;
+import cn.bugstack.ai.domain.rag.model.valobj.ChunkingConfigVO;
+import cn.bugstack.ai.domain.rag.model.valobj.ChunkingResultVO;
 import cn.bugstack.ai.domain.rag.model.valobj.CleanedDocumentVO;
 import cn.bugstack.ai.domain.rag.model.valobj.ParsedDocumentVO;
 import cn.bugstack.ai.domain.rag.service.DocumentRagService;
@@ -21,6 +25,7 @@ import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * RAG 文档处理领域服务测试。
@@ -81,6 +86,54 @@ public class DocumentRagServiceTest {
                     result.getCleanedText());
             Assert.assertEquals(5, result.getCleaningSteps().size());
         }
+    }
+
+    @Test
+    public void test_parse_clean_and_chunk() {
+        IDocumentParserPort parserPort = (fileName, inputStream) -> ParsedDocumentVO.builder()
+                .fileName(fileName)
+                .contentType("text/plain")
+                .text("raw text")
+                .metadata(Map.of())
+                .build();
+        IDocumentCleanerPort cleanerPort = parsedDocument -> CleanedDocumentVO.builder()
+                .fileName(parsedDocument.getFileName())
+                .contentType(parsedDocument.getContentType())
+                .rawText(parsedDocument.getText())
+                .cleanedText("cleaned text")
+                .metadata(parsedDocument.getMetadata())
+                .cleaningVersion("v1")
+                .cleaningSteps(List.of())
+                .build();
+        AtomicReference<DocumentChunkingCommandEntity> commandReference = new AtomicReference<>();
+        IDocumentChunkerPort chunkerPort = command -> {
+            commandReference.set(command);
+            return ChunkingResultVO.builder()
+                    .documentId(command.getDocumentId())
+                    .fileName(command.getCleanedDocument().getFileName())
+                    .chunkingVersion(command.getConfig().getChunkingVersion())
+                    .chunkCount(0)
+                    .chunks(List.of())
+                    .build();
+        };
+        ChunkingConfigVO config = ChunkingConfigVO.builder()
+                .targetTokens(600)
+                .maxTokens(800)
+                .overlapTokens(100)
+                .chunkingVersion("v1")
+                .build();
+        DocumentRagService service = createDocumentRagService(parserPort, cleanerPort);
+        ReflectionTestUtils.setField(service, "documentChunkerPort", chunkerPort);
+        ReflectionTestUtils.setField(service, "chunkingConfig", config);
+
+        ChunkingResultVO result = service.parseCleanAndChunk(
+                "doc-service",
+                "sample.txt",
+                new ByteArrayInputStream("raw text".getBytes(StandardCharsets.UTF_8)));
+
+        Assert.assertEquals("doc-service", result.getDocumentId());
+        Assert.assertEquals("cleaned text", commandReference.get().getCleanedDocument().getCleanedText());
+        Assert.assertSame(config, commandReference.get().getConfig());
     }
 
     private DocumentRagService createDocumentRagService(IDocumentParserPort parserPort,
