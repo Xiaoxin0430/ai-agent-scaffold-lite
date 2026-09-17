@@ -1,7 +1,7 @@
 package cn.bugstack.ai.infrastructure.adapter.port;
 
-import cn.bugstack.ai.domain.agent.adapter.port.IDocumentParserPort;
-import cn.bugstack.ai.domain.agent.model.valobj.ParsedDocumentVO;
+import cn.bugstack.ai.domain.rag.adapter.port.IDocumentParserPort;
+import cn.bugstack.ai.domain.rag.model.valobj.ParsedDocumentVO;
 import cn.bugstack.ai.types.exception.DocumentParseException;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.tika.exception.TikaException;
@@ -54,7 +54,7 @@ public class TikaDocumentParserPort implements IDocumentParserPort {
             ParsedDocumentVO parsedDocument = ParsedDocumentVO.builder()
                     .fileName(resolvedFileName)
                     .contentType(metadata.get(Metadata.CONTENT_TYPE))
-                    .text(normalizeText(contentHandler.toString()))
+                    .text(contentHandler.toString())
                     .metadata(convertMetadata(metadata))
                     .build();
 
@@ -75,16 +75,6 @@ public class TikaDocumentParserPort implements IDocumentParserPort {
             result.put(name, Arrays.asList(metadata.getValues(name)));
         }
         return result;
-    }
-
-    private String normalizeText(String text) {
-        if (text == null) {
-            return "";
-        }
-        return text
-                .replace("\r\n", "\n")
-                .replace('\r', '\n')
-                .trim();
     }
 
 }

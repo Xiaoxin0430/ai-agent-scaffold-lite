@@ -38,6 +38,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <google.adk.version>0.5.0</google.adk.version>
         <apache-tika.version>3.3.2</apache-tika.version>
+        <icu4j.version>78.3</icu4j.version>
     </properties>
 
     <developers>
@@ -130,6 +131,11 @@
                 <groupId>org.apache.tika</groupId>
                 <artifactId>tika-parsers-standard-package</artifactId>
                 <version>${apache-tika.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.ibm.icu</groupId>
+                <artifactId>icu4j</artifactId>
+                <version>${icu4j.version}</version>
             </dependency>
 
             <dependency>

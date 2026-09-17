@@ -1,7 +1,7 @@
 package cn.bugstack.ai.test.infrastructure.rag;
 
-import cn.bugstack.ai.domain.agent.adapter.port.IDocumentParserPort;
-import cn.bugstack.ai.domain.agent.model.valobj.ParsedDocumentVO;
+import cn.bugstack.ai.domain.rag.adapter.port.IDocumentParserPort;
+import cn.bugstack.ai.domain.rag.model.valobj.ParsedDocumentVO;
 import cn.bugstack.ai.infrastructure.adapter.port.TikaDocumentParserPort;
 import org.junit.Assert;
 import org.junit.Test;

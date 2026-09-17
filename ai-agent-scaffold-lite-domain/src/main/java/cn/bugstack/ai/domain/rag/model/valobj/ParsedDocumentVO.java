@@ -1,4 +1,4 @@
-package cn.bugstack.ai.domain.agent.model.valobj;
+package cn.bugstack.ai.domain.rag.model.valobj;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -30,7 +30,7 @@ public class ParsedDocumentVO {
     private String contentType;
 
     /**
-     * 从文档中提取的纯文本。
+     * 解析器提取的原始文本，尚未经过清洗。
      */
     private String text;
 

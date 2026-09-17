@@ -30,6 +30,18 @@
             <artifactId>tika-parsers-standard-package</artifactId>
         </dependency>
 
+        <!-- Unicode 文本规范化 -->
+        <dependency>
+            <groupId>com.ibm.icu</groupId>
+            <artifactId>icu4j</artifactId>
+        </dependency>
+
+        <!-- Spring AI ETL Document/DocumentTransformer -->
+        <dependency>
+            <groupId>org.springframework.ai</groupId>
+            <artifactId>spring-ai-commons</artifactId>
+        </dependency>
+
         <!-- 系统模块 -->
         <dependency>
             <groupId>cn.bugstack.ai</groupId>

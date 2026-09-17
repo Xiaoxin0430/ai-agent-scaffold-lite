@@ -44,3 +44,4 @@ build/
 /ai-agent-scaffold-lite-app/target/
 /ai-agent-scaffold-lite-domain/target/
 **/target/
+/RAG开发文档.md

@@ -1,6 +1,6 @@
-package cn.bugstack.ai.domain.agent.adapter.port;
+package cn.bugstack.ai.domain.rag.adapter.port;
 
-import cn.bugstack.ai.domain.agent.model.valobj.ParsedDocumentVO;
+import cn.bugstack.ai.domain.rag.model.valobj.ParsedDocumentVO;
 
 import java.io.InputStream;
 
@@ -12,7 +12,7 @@ import java.io.InputStream;
 public interface IDocumentParserPort {
 
     /**
-     * 读取文档并提取正文及元数据。
+     * 读取文档并提取原始正文及元数据。
      * 实现方负责关闭传入的输入流。
      *
      * @param fileName    原始文件名，用于辅助识别文档类型
