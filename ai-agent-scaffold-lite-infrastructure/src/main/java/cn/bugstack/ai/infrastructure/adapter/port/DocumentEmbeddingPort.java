@@ -1,6 +1,7 @@
 package cn.bugstack.ai.infrastructure.adapter.port;
 
 import cn.bugstack.ai.domain.rag.adapter.port.IDocumentEmbeddingPort;
+import cn.bugstack.ai.domain.rag.adapter.port.IQueryEmbeddingPort;
 import cn.bugstack.ai.domain.rag.model.entity.DocumentChunkEmbeddingEntity;
 import cn.bugstack.ai.domain.rag.model.entity.DocumentChunkEntity;
 import cn.bugstack.ai.domain.rag.model.entity.DocumentEmbeddingCommandEntity;
@@ -24,7 +25,7 @@ import java.util.Objects;
  */
 @Slf4j
 @Service
-public class DocumentEmbeddingPort implements IDocumentEmbeddingPort {
+public class DocumentEmbeddingPort implements IDocumentEmbeddingPort, IQueryEmbeddingPort {
 
     private final EmbeddingModel embeddingModel;
 
@@ -99,6 +100,33 @@ public class DocumentEmbeddingPort implements IDocumentEmbeddingPort {
                     .build();
         } catch (Exception e) {
             throw new DocumentEmbeddingException(documentId, stepName, e);
+        }
+    }
+
+    @Override
+    public float[] embedQuery(String query, EmbeddingConfigVO config) {
+        String stepName = "query-input-validation";
+        try {
+            if (isBlank(query)) {
+                throw new IllegalArgumentException("query cannot be blank");
+            }
+            Objects.requireNonNull(config, "embedding config cannot be null");
+            if (config.getDimensions() <= 0) {
+                throw new IllegalArgumentException("embedding dimensions must be positive");
+            }
+
+            stepName = "query-embedding";
+            List<float[]> vectors = embeddingModel.embed(List.of(query));
+            if (vectors == null || vectors.size() != 1) {
+                throw new IllegalStateException("query embedding result count must be one");
+            }
+
+            stepName = "query-result-validation";
+            float[] vector = vectors.get(0);
+            validateVector(vector, config, 0);
+            return vector.clone();
+        } catch (Exception e) {
+            throw new DocumentEmbeddingException("query", stepName, e);
         }
     }
 

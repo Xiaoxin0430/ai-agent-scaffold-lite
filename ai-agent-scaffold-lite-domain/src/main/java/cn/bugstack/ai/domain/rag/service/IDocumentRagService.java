@@ -2,9 +2,12 @@ package cn.bugstack.ai.domain.rag.service;
 
 import cn.bugstack.ai.domain.rag.model.valobj.CleanedDocumentVO;
 import cn.bugstack.ai.domain.rag.model.valobj.ChunkingResultVO;
+import cn.bugstack.ai.domain.rag.model.valobj.DocumentIndexResultVO;
 import cn.bugstack.ai.domain.rag.model.valobj.EmbeddingResultVO;
+import cn.bugstack.ai.domain.rag.model.valobj.SimilarDocumentChunkVO;
 
 import java.io.InputStream;
+import java.util.List;
 
 /**
  * RAG 文档处理服务。
@@ -45,5 +48,31 @@ public interface IDocumentRagService {
     EmbeddingResultVO parseCleanChunkAndEmbed(String documentId,
                                               String fileName,
                                               InputStream inputStream);
+
+    /**
+     * 解析、清洗、切分、向量化并原子替换整个文档的索引。
+     *
+     * @param documentId 稳定文档标识
+     * @param fileName 原始文件名
+     * @param inputStream 文档输入流
+     * @return 文档入库结果
+     */
+    DocumentIndexResultVO indexDocument(String documentId,
+                                        String fileName,
+                                        InputStream inputStream);
+
+    /**
+     * 将查询文本向量化并检索相似 Chunk。
+     *
+     * @param query 查询文本
+     * @param topK 最大返回数，为空时使用默认值
+     * @param minSimilarity 最低相似度，为空时使用默认值
+     * @param documentIds 可选文档范围
+     * @return 按相似度降序排列的 Chunk
+     */
+    List<SimilarDocumentChunkVO> searchSimilarChunks(String query,
+                                                      Integer topK,
+                                                      Double minSimilarity,
+                                                      List<String> documentIds);
 
 }

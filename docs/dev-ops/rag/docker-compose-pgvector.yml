@@ -1,0 +1,26 @@
+services:
+  postgres:
+    image: pgvector/pgvector:0.8.1-pg16
+    container_name: ai-agent-scaffold-backup
+    restart: unless-stopped
+    env_file:
+      - .env.pgvector
+    ports:
+      - "127.0.0.1:${POSTGRES_PORT:-15432}:5432"
+    volumes:
+      - ai-agent-scaffold-lite-postgres-data:/var/lib/postgresql/data
+    networks:
+      - ai-agent-scaffold-lite-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  ai-agent-scaffold-lite-postgres-data:
+    name: ai-agent-scaffold-lite-postgres-data
+
+networks:
+  ai-agent-scaffold-lite-network:
+    name: ai-agent-scaffold-lite-network

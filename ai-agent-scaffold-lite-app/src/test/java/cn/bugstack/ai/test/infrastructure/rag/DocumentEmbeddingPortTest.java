@@ -128,6 +128,42 @@ public class DocumentEmbeddingPortTest {
         }
     }
 
+    @Test
+    public void test_embed_query_with_document_embedding_configuration() {
+        DocumentEmbeddingPort port = new DocumentEmbeddingPort(
+                new FakeEmbeddingModel(3));
+        EmbeddingConfigVO config = EmbeddingConfigVO.builder()
+                .model("text-embedding-test")
+                .dimensions(3)
+                .batchSize(2)
+                .embeddingVersion("v1")
+                .build();
+
+        float[] vector = port.embedQuery("query", config);
+
+        Assert.assertArrayEquals(new float[]{5.0f, 0.0f, 3.0f}, vector, 0.0f);
+    }
+
+    @Test
+    public void test_reject_blank_query() {
+        DocumentEmbeddingPort port = new DocumentEmbeddingPort(
+                new FakeEmbeddingModel(3));
+        EmbeddingConfigVO config = EmbeddingConfigVO.builder()
+                .model("text-embedding-test")
+                .dimensions(3)
+                .batchSize(2)
+                .embeddingVersion("v1")
+                .build();
+
+        try {
+            port.embedQuery(" ", config);
+            Assert.fail("expected DocumentEmbeddingException");
+        } catch (DocumentEmbeddingException e) {
+            Assert.assertEquals("query", e.getDocumentId());
+            Assert.assertEquals("query-input-validation", e.getStepName());
+        }
+    }
+
     private DocumentEmbeddingCommandEntity command(List<DocumentChunkEntity> chunks,
                                                      int dimensions,
                                                      int batchSize) {
