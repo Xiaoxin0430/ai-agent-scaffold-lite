@@ -13,3 +13,11 @@ rag:
     overlap-tokens: 100
     version: v1
     encoding: CL100K_BASE
+  embedding:
+    base-url: ${AI_EMBEDDING_BASE_URL:https://dashscope.aliyuncs.com/compatible-mode/v1}
+    api-key: ${ALiYun_API:}
+    embeddings-path: ${AI_EMBEDDINGS_PATH:/embeddings}
+    model: ${AI_EMBEDDING_MODEL:qwen3.7-text-embedding-flash}
+    dimensions: ${AI_EMBEDDING_DIMENSIONS:1024}
+    batch-size: ${AI_EMBEDDING_BATCH_SIZE:20}
+    version: ${AI_EMBEDDING_VERSION:v1}

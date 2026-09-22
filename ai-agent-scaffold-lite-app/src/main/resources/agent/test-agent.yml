@@ -10,12 +10,12 @@ ai:
             agent-desc: 一个测试的智能体
           module:
             ai-api:
-              base-url: https://apis.itedus.cn
-              api-key: ${AI_API_KEY:}
-              completions-path: v1/chat/completions
-              embeddings-path: v1/embeddings
+              base-url: https://dashscope.aliyuncs.com/compatible-mode/v1
+              api-key: ${ALiYun_API:}
+              completions-path: /chat/completions
+              embeddings-path: /embeddings
             chat-model:
-              model: gpt-4.1
+              model: qwen3.8-27b
               tool-mcp-list:
                 - sse:
                     name: baidu-search

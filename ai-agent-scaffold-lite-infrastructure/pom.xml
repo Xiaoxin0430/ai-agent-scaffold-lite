@@ -41,6 +41,10 @@
             <groupId>org.springframework.ai</groupId>
             <artifactId>spring-ai-commons</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.springframework.ai</groupId>
+            <artifactId>spring-ai-model</artifactId>
+        </dependency>
 
         <!-- 系统模块 -->
         <dependency>

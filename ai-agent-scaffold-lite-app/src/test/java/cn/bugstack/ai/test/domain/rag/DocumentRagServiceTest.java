@@ -2,11 +2,15 @@ package cn.bugstack.ai.test.domain.rag;
 
 import cn.bugstack.ai.domain.rag.adapter.port.IDocumentCleanerPort;
 import cn.bugstack.ai.domain.rag.adapter.port.IDocumentChunkerPort;
+import cn.bugstack.ai.domain.rag.adapter.port.IDocumentEmbeddingPort;
 import cn.bugstack.ai.domain.rag.adapter.port.IDocumentParserPort;
 import cn.bugstack.ai.domain.rag.model.entity.DocumentChunkingCommandEntity;
+import cn.bugstack.ai.domain.rag.model.entity.DocumentEmbeddingCommandEntity;
 import cn.bugstack.ai.domain.rag.model.valobj.ChunkingConfigVO;
 import cn.bugstack.ai.domain.rag.model.valobj.ChunkingResultVO;
 import cn.bugstack.ai.domain.rag.model.valobj.CleanedDocumentVO;
+import cn.bugstack.ai.domain.rag.model.valobj.EmbeddingConfigVO;
+import cn.bugstack.ai.domain.rag.model.valobj.EmbeddingResultVO;
 import cn.bugstack.ai.domain.rag.model.valobj.ParsedDocumentVO;
 import cn.bugstack.ai.domain.rag.service.DocumentRagService;
 import cn.bugstack.ai.infrastructure.adapter.port.DocumentCleanerPort;
@@ -134,6 +138,72 @@ public class DocumentRagServiceTest {
         Assert.assertEquals("doc-service", result.getDocumentId());
         Assert.assertEquals("cleaned text", commandReference.get().getCleanedDocument().getCleanedText());
         Assert.assertSame(config, commandReference.get().getConfig());
+    }
+
+    @Test
+    public void test_parse_clean_chunk_and_embed() {
+        IDocumentParserPort parserPort = (fileName, inputStream) -> ParsedDocumentVO.builder()
+                .fileName(fileName)
+                .contentType("text/plain")
+                .text("raw text")
+                .metadata(Map.of())
+                .build();
+        IDocumentCleanerPort cleanerPort = parsedDocument -> CleanedDocumentVO.builder()
+                .fileName(parsedDocument.getFileName())
+                .contentType(parsedDocument.getContentType())
+                .rawText(parsedDocument.getText())
+                .cleanedText("cleaned text")
+                .metadata(parsedDocument.getMetadata())
+                .cleaningVersion("v1")
+                .cleaningSteps(List.of())
+                .build();
+        ChunkingResultVO chunkingResult = ChunkingResultVO.builder()
+                .documentId("doc-service")
+                .fileName("sample.txt")
+                .chunkingVersion("v1")
+                .chunkCount(0)
+                .chunks(List.of())
+                .build();
+        IDocumentChunkerPort chunkerPort = command -> chunkingResult;
+        AtomicReference<DocumentEmbeddingCommandEntity> embeddingCommandReference = new AtomicReference<>();
+        IDocumentEmbeddingPort embeddingPort = command -> {
+            embeddingCommandReference.set(command);
+            return EmbeddingResultVO.builder()
+                    .documentId(command.getChunkingResult().getDocumentId())
+                    .fileName(command.getChunkingResult().getFileName())
+                    .embeddingModel(command.getConfig().getModel())
+                    .embeddingVersion(command.getConfig().getEmbeddingVersion())
+                    .embeddingDimensions(command.getConfig().getDimensions())
+                    .embeddingCount(0)
+                    .embeddings(List.of())
+                    .build();
+        };
+        ChunkingConfigVO chunkingConfig = ChunkingConfigVO.builder()
+                .targetTokens(600)
+                .maxTokens(800)
+                .overlapTokens(100)
+                .chunkingVersion("v1")
+                .build();
+        EmbeddingConfigVO embeddingConfig = EmbeddingConfigVO.builder()
+                .model("text-embedding-test")
+                .dimensions(3)
+                .batchSize(2)
+                .embeddingVersion("v1")
+                .build();
+        DocumentRagService service = createDocumentRagService(parserPort, cleanerPort);
+        ReflectionTestUtils.setField(service, "documentChunkerPort", chunkerPort);
+        ReflectionTestUtils.setField(service, "documentEmbeddingPort", embeddingPort);
+        ReflectionTestUtils.setField(service, "chunkingConfig", chunkingConfig);
+        ReflectionTestUtils.setField(service, "embeddingConfig", embeddingConfig);
+
+        EmbeddingResultVO result = service.parseCleanChunkAndEmbed(
+                "doc-service",
+                "sample.txt",
+                new ByteArrayInputStream("raw text".getBytes(StandardCharsets.UTF_8)));
+
+        Assert.assertEquals("doc-service", result.getDocumentId());
+        Assert.assertSame(chunkingResult, embeddingCommandReference.get().getChunkingResult());
+        Assert.assertSame(embeddingConfig, embeddingCommandReference.get().getConfig());
     }
 
     private DocumentRagService createDocumentRagService(IDocumentParserPort parserPort,
