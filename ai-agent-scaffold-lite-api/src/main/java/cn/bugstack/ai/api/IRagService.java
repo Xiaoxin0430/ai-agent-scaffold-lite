@@ -1,6 +1,8 @@
 package cn.bugstack.ai.api;
 
 import cn.bugstack.ai.api.dto.IndexDocumentResponseDTO;
+import cn.bugstack.ai.api.dto.RagAnswerRequestDTO;
+import cn.bugstack.ai.api.dto.RagAnswerResponseDTO;
 import cn.bugstack.ai.api.dto.SimilarChunkResponseDTO;
 import cn.bugstack.ai.api.dto.SimilaritySearchRequestDTO;
 import cn.bugstack.ai.api.response.Response;
@@ -20,5 +22,7 @@ public interface IRagService {
 
     Response<List<SimilarChunkResponseDTO>> similaritySearch(
             SimilaritySearchRequestDTO requestDTO);
+
+    Response<RagAnswerResponseDTO> answer(RagAnswerRequestDTO requestDTO);
 
 }

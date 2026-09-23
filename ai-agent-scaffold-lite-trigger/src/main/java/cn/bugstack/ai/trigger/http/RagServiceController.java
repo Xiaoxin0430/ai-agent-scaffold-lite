@@ -2,11 +2,14 @@ package cn.bugstack.ai.trigger.http;
 
 import cn.bugstack.ai.api.IRagService;
 import cn.bugstack.ai.api.dto.IndexDocumentResponseDTO;
+import cn.bugstack.ai.api.dto.RagAnswerRequestDTO;
+import cn.bugstack.ai.api.dto.RagAnswerResponseDTO;
 import cn.bugstack.ai.api.dto.SimilarChunkResponseDTO;
 import cn.bugstack.ai.api.dto.SimilaritySearchRequestDTO;
 import cn.bugstack.ai.api.response.Response;
 import cn.bugstack.ai.domain.rag.model.entity.DocumentChunkEntity;
 import cn.bugstack.ai.domain.rag.model.valobj.DocumentIndexResultVO;
+import cn.bugstack.ai.domain.rag.model.valobj.RagAnswerVO;
 import cn.bugstack.ai.domain.rag.model.valobj.SimilarDocumentChunkVO;
 import cn.bugstack.ai.domain.rag.service.IDocumentRagService;
 import cn.bugstack.ai.types.enums.ResponseCode;
@@ -86,6 +89,33 @@ public class RagServiceController implements IRagService {
             return failure(ResponseCode.ILLEGAL_PARAMETER, e.getMessage());
         } catch (Exception e) {
             log.error("Chunk 检索失败", e);
+            return failure(ResponseCode.UN_ERROR, ResponseCode.UN_ERROR.getInfo());
+        }
+    }
+
+    @Override
+    @PostMapping("/answer")
+    public Response<RagAnswerResponseDTO> answer(
+            @Valid @RequestBody RagAnswerRequestDTO requestDTO) {
+        try {
+            RagAnswerVO result = documentRagService.answerQuestion(
+                    requestDTO.getQuery(),
+                    requestDTO.getTopK(),
+                    requestDTO.getMinSimilarity(),
+                    requestDTO.getDocumentIds());
+            RagAnswerResponseDTO responseDTO = new RagAnswerResponseDTO();
+            responseDTO.setQuery(result.getQuery());
+            responseDTO.setAnswer(result.getAnswer());
+            responseDTO.setSources(result.getSources().stream()
+                    .map(this::toSearchResponse)
+                    .toList());
+            log.info("RAG 问答完成 sourceCount:{}", responseDTO.getSources().size());
+            return success(responseDTO);
+        } catch (IllegalArgumentException e) {
+            log.warn("RAG 问答参数错误 message:{}", e.getMessage());
+            return failure(ResponseCode.ILLEGAL_PARAMETER, e.getMessage());
+        } catch (Exception e) {
+            log.error("RAG 问答失败", e);
             return failure(ResponseCode.UN_ERROR, ResponseCode.UN_ERROR.getInfo());
         }
     }
