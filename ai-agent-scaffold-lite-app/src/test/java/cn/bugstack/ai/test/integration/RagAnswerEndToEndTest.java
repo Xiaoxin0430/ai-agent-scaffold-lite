@@ -86,6 +86,7 @@ public class RagAnswerEndToEndTest {
         };
         MultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
         body.add("file", fileResource);
+        body.add("userId", "rag-live-test");
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.MULTIPART_FORM_DATA);
         ResponseEntity<JsonNode> response = restTemplate.postForEntity(

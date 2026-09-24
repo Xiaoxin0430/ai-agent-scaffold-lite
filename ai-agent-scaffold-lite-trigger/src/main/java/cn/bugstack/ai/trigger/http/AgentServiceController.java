@@ -4,15 +4,24 @@ import cn.bugstack.ai.api.IAgentService;
 import cn.bugstack.ai.api.dto.*;
 import cn.bugstack.ai.api.response.Response;
 import cn.bugstack.ai.domain.agent.model.valobj.AiAgentConfigTableVO;
+import cn.bugstack.ai.domain.agent.model.valobj.ChatStreamResultVO;
 import cn.bugstack.ai.domain.agent.service.IChatService;
 import cn.bugstack.ai.types.enums.ResponseCode;
 import cn.bugstack.ai.types.exception.AppException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.adk.events.Event;
+import com.google.genai.types.Part;
+import io.reactivex.rxjava3.schedulers.Schedulers;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseBodyEmitter;
 
 import javax.annotation.Resource;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 
 /**
@@ -25,6 +34,9 @@ import java.util.stream.Collectors;
 @RequestMapping("/api/v1/")
 @CrossOrigin(origins = "*")
 public class AgentServiceController implements IAgentService {
+
+    @Resource
+    private ObjectMapper objectMapper;
 
     @Resource
     private IChatService chatService;
@@ -139,30 +151,85 @@ public class AgentServiceController implements IAgentService {
         }
     }
 
-    @RequestMapping(value = "chat_stream", method = RequestMethod.POST)
+    @RequestMapping(value = "chat_stream", method = RequestMethod.POST, produces = "application/x-ndjson")
     @Override
     public ResponseBodyEmitter chatStream(@RequestBody ChatRequestDTO requestDTO) {
         ResponseBodyEmitter emitter = new ResponseBodyEmitter(3 * 60 * 1000L);
+        AtomicBoolean finished = new AtomicBoolean();
         try {
             log.info("流式对话 agentId:{} userId:{} sessionId:{} message:{}", requestDTO.getAgentId(), requestDTO.getUserId(), requestDTO.getSessionId(), requestDTO.getMessage());
-            chatService.handleMessageStream(requestDTO.getAgentId(), requestDTO.getUserId(), requestDTO.getSessionId(), requestDTO.getMessage())
+            ChatStreamResultVO chatResult = chatService.prepareMessageStream(
+                    requestDTO.getAgentId(), requestDTO.getUserId(), requestDTO.getSessionId(), requestDTO.getMessage());
+            if (!chatResult.sources().isEmpty()) {
+                List<Map<String, Object>> sources = new java.util.ArrayList<>();
+                for (int i = 0; i < chatResult.sources().size(); i++) {
+                    var source = chatResult.sources().get(i);
+                    if (source.getChunk() == null) continue;
+                    Map<String, Object> item = new LinkedHashMap<>();
+                    item.put("ref", "S" + (i + 1));
+                    item.put("documentId", source.getChunk().getDocumentId());
+                    item.put("fileName", source.getFileName());
+                    item.put("chunkIndex", source.getChunk().getChunkIndex());
+                    item.put("similarity", source.getSimilarity());
+                    sources.add(item);
+                }
+                sendFrame(emitter, Map.of("type", "sources", "sources", sources));
+            }
+            chatResult.events()
+                    .subscribeOn(Schedulers.io())
+                    .takeUntil(event -> event.turnComplete().orElse(false)
+                            && event.branch().orElse("").isEmpty()
+                            && event.content().map(content -> content.parts().orElse(List.of()).stream()
+                                    .map(Part::text).flatMap(java.util.Optional::stream)
+                                    .anyMatch(text -> !text.isBlank())).orElse(false))
                     .subscribe(
                             event -> {
                                 try {
-                                    emitter.send(event.stringifyContent());
+                                    Map<String, Object> frame = new LinkedHashMap<>();
+                                    frame.put("type", "message");
+                                    frame.put("author", event.author());
+                                    frame.put("branch", event.branch().orElse(""));
+                                    frame.put("partial", event.partial().orElse(false));
+                                    frame.put("text", event.content().map(content -> content.parts().orElse(List.of()).stream()
+                                            .map(Part::text).flatMap(java.util.Optional::stream)
+                                            .collect(Collectors.joining())).orElse(""));
+                                    sendFrame(emitter, frame);
                                 } catch (Exception e) {
                                     log.error("流式对话发送失败", e);
-                                    emitter.completeWithError(e);
+                                    if (finished.compareAndSet(false, true)) emitter.completeWithError(e);
                                 }
                             },
-                            emitter::completeWithError,
-                            emitter::complete
+                            error -> {
+                                log.error("流式对话失败", error);
+                                if (finished.compareAndSet(false, true)) {
+                                    try {
+                                        sendFrame(emitter, Map.of("type", "error", "message", "对话生成失败，请重试"));
+                                        emitter.complete();
+                                    } catch (Exception sendError) {
+                                        emitter.completeWithError(sendError);
+                                    }
+                                }
+                            },
+                            () -> {
+                                if (finished.compareAndSet(false, true)) {
+                                    try {
+                                        sendFrame(emitter, Map.of("type", "done"));
+                                        emitter.complete();
+                                    } catch (Exception e) {
+                                        emitter.completeWithError(e);
+                                    }
+                                }
+                            }
                     );
         } catch (Exception e) {
             log.error("流式对话失败", e);
             emitter.completeWithError(e);
         }
         return emitter;
+    }
+
+    private void sendFrame(ResponseBodyEmitter emitter, Map<String, Object> frame) throws Exception {
+        emitter.send(objectMapper.writeValueAsString(frame) + "\n", MediaType.TEXT_PLAIN);
     }
 
 }

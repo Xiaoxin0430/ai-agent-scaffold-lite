@@ -67,7 +67,7 @@ public class DocumentRagIndexAndSearchServiceTest {
         ReflectionTestUtils.setField(service, "similaritySearchConfig", searchConfig);
 
         List<SimilarDocumentChunkVO> results = service.searchSimilarChunks(
-                "expense policy", null, null, List.of("doc-1"));
+                "expense policy", null, null, List.of("doc-1"), "admin");
 
         Assert.assertEquals(1, results.size());
         SimilaritySearchCommandEntity command = commandReference.get();
@@ -76,6 +76,7 @@ public class DocumentRagIndexAndSearchServiceTest {
         Assert.assertEquals(Integer.valueOf(5), command.getTopK());
         Assert.assertEquals(Double.valueOf(0.25d), command.getMinSimilarity());
         Assert.assertEquals(List.of("doc-1"), command.getDocumentIds());
+        Assert.assertEquals("admin", command.getOwnerUserId());
     }
 
     @Test

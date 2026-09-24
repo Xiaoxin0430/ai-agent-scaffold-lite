@@ -62,6 +62,9 @@ public interface IDocumentRagService {
                                         String fileName,
                                         InputStream inputStream);
 
+    DocumentIndexResultVO indexDocument(String documentId, String fileName,
+                                        InputStream inputStream, String ownerUserId);
+
     /**
      * 将查询文本向量化并检索相似 Chunk。
      *
@@ -75,6 +78,10 @@ public interface IDocumentRagService {
                                                       Integer topK,
                                                       Double minSimilarity,
                                                       List<String> documentIds);
+
+    List<SimilarDocumentChunkVO> searchSimilarChunks(String query, Integer topK,
+                                                      Double minSimilarity, List<String> documentIds,
+                                                      String ownerUserId);
 
     /**
      * 检索与问题相关的 Chunk，将检索结果拼入提示词并调用大模型生成答案。

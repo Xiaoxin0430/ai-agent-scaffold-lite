@@ -6,6 +6,7 @@ import cn.bugstack.ai.domain.agent.model.valobj.AiAgentRegisterVO;
 import cn.bugstack.ai.domain.agent.service.armory.AbstractArmorySupport;
 import cn.bugstack.ai.domain.agent.service.armory.factory.DefaultArmoryFactory;
 import cn.bugstack.ai.domain.agent.service.armory.matter.patch.MySpringAI;
+import cn.bugstack.ai.domain.agent.service.chat.RagChatContextBuilder;
 import cn.bugstack.wrench.design.framework.tree.StrategyHandler;
 import com.google.adk.agents.LlmAgent;
 import com.google.adk.models.springai.SpringAI;
@@ -15,6 +16,7 @@ import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
 import java.util.List;
+import java.util.Optional;
 
 @Slf4j
 @Service
@@ -38,6 +40,13 @@ public class AgentNode extends AbstractArmorySupport {
                     .description(agentConfig.getDescription())
                     .model(new MySpringAI(chatModel))
                     .instruction(agentConfig.getInstruction())
+                    .beforeModelCallbackSync((callbackContext, requestBuilder) -> {
+                        Object context = callbackContext.state().get(RagChatContextBuilder.STATE_KEY);
+                        if (context instanceof String text && !text.isBlank()) {
+                            requestBuilder.appendInstructions(List.of(text));
+                        }
+                        return Optional.empty();
+                    })
                     .outputKey(agentConfig.getOutputKey())
                     .build();
 

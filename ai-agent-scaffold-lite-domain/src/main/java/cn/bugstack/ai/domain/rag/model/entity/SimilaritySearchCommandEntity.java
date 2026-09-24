@@ -24,6 +24,8 @@ public class SimilaritySearchCommandEntity {
 
     private List<String> documentIds;
 
+    private String ownerUserId;
+
     public float[] getQueryEmbedding() {
         return queryEmbedding == null ? null : queryEmbedding.clone();
     }
@@ -38,6 +40,10 @@ public class SimilaritySearchCommandEntity {
 
     public List<String> getDocumentIds() {
         return documentIds == null ? List.of() : List.copyOf(documentIds);
+    }
+
+    public String getOwnerUserId() {
+        return ownerUserId;
     }
 
 }

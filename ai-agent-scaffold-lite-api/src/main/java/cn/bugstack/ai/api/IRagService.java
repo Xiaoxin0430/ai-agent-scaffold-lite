@@ -18,7 +18,8 @@ import java.util.List;
 public interface IRagService {
 
     Response<IndexDocumentResponseDTO> indexDocument(String documentId,
-                                                      MultipartFile file);
+                                                      MultipartFile file,
+                                                      String userId);
 
     Response<List<SimilarChunkResponseDTO>> similaritySearch(
             SimilaritySearchRequestDTO requestDTO);

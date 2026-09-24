@@ -46,15 +46,19 @@ public class RagServiceController implements IRagService {
     @PostMapping(value = "/documents/{documentId}/index", consumes = "multipart/form-data")
     public Response<IndexDocumentResponseDTO> indexDocument(
             @PathVariable("documentId") String documentId,
-            @RequestPart("file") MultipartFile file) {
+            @RequestPart("file") MultipartFile file,
+            @RequestPart("userId") String userId) {
         try {
             if (file == null || file.isEmpty()) {
                 throw new IllegalArgumentException("file cannot be empty");
             }
+            if (userId == null || userId.isBlank()) {
+                throw new IllegalArgumentException("userId cannot be blank");
+            }
             String fileName = file.getOriginalFilename();
             try (InputStream inputStream = file.getInputStream()) {
                 DocumentIndexResultVO result = documentRagService.indexDocument(
-                        documentId, fileName, inputStream);
+                        documentId, fileName, inputStream, userId);
                 log.info("文档索引完成 documentId:{} fileName:{} chunkCount:{}",
                         result.getDocumentId(), result.getFileName(), result.getChunkCount());
                 return success(toIndexResponse(result));

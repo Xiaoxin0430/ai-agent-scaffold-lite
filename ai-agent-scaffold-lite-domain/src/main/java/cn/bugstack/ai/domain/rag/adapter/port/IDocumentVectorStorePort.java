@@ -22,6 +22,10 @@ public interface IDocumentVectorStorePort {
      */
     DocumentIndexResultVO replaceDocument(EmbeddingResultVO embeddingResult);
 
+    default DocumentIndexResultVO replaceDocument(EmbeddingResultVO embeddingResult, String ownerUserId) {
+        return replaceDocument(embeddingResult);
+    }
+
     /**
      * 根据查询向量执行余弦相似度检索。
      *

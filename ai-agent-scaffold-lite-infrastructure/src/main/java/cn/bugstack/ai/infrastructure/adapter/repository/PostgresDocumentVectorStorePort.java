@@ -42,8 +42,8 @@ public class PostgresDocumentVectorStorePort implements IDocumentVectorStorePort
             INSERT INTO rag_document (
                 document_id, file_name, chunk_count, cleaning_version,
                 chunking_version, embedding_model, embedding_version,
-                embedding_dimensions, created_at, updated_at
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
+                embedding_dimensions, owner_user_id, created_at, updated_at
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
             ON CONFLICT (document_id) DO UPDATE SET
                 file_name = EXCLUDED.file_name,
                 chunk_count = EXCLUDED.chunk_count,
@@ -53,6 +53,7 @@ public class PostgresDocumentVectorStorePort implements IDocumentVectorStorePort
                 embedding_version = EXCLUDED.embedding_version,
                 embedding_dimensions = EXCLUDED.embedding_dimensions,
                 updated_at = CURRENT_TIMESTAMP
+            WHERE rag_document.owner_user_id IS NOT DISTINCT FROM EXCLUDED.owner_user_id
             """;
 
     private static final String INSERT_CHUNK_SQL = """
@@ -77,6 +78,12 @@ public class PostgresDocumentVectorStorePort implements IDocumentVectorStorePort
     @Override
     @Transactional(rollbackFor = Exception.class)
     public DocumentIndexResultVO replaceDocument(EmbeddingResultVO embeddingResult) {
+        return replaceDocument(embeddingResult, null);
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public DocumentIndexResultVO replaceDocument(EmbeddingResultVO embeddingResult, String ownerUserId) {
         String documentId = resolveDocumentId(embeddingResult);
         String operationName = "input-validation";
         try {
@@ -92,7 +99,7 @@ public class PostgresDocumentVectorStorePort implements IDocumentVectorStorePort
                     documentId);
 
             operationName = "document-upsert";
-            jdbcTemplate.update(
+            int updated = jdbcTemplate.update(
                     UPSERT_DOCUMENT_SQL,
                     embeddingResult.getDocumentId(),
                     embeddingResult.getFileName(),
@@ -101,7 +108,11 @@ public class PostgresDocumentVectorStorePort implements IDocumentVectorStorePort
                     firstChunk.getChunkingVersion(),
                     embeddingResult.getEmbeddingModel(),
                     embeddingResult.getEmbeddingVersion(),
-                    embeddingResult.getEmbeddingDimensions());
+                    embeddingResult.getEmbeddingDimensions(),
+                    ownerUserId);
+            if (updated != 1) {
+                throw new IllegalArgumentException("documentId belongs to another user");
+            }
 
             operationName = "old-chunk-delete";
             jdbcTemplate.update(
@@ -173,6 +184,11 @@ public class PostgresDocumentVectorStorePort implements IDocumentVectorStorePort
                 sql.append(" AND c.document_id IN (")
                         .append(placeholders)
                         .append(")\n");
+            }
+
+            if (command.getOwnerUserId() != null && !command.getOwnerUserId().isBlank()) {
+                sql.append(" AND d.owner_user_id = ?\n");
+                parameters.add(command.getOwnerUserId());
             }
 
             sql.append(" ORDER BY c.embedding <=> ?::vector, c.document_id, c.chunk_index LIMIT ?");

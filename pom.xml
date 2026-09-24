@@ -20,7 +20,7 @@
         <repository>
             <id>nexus-aliyun</id>
             <name>nexus-aliyun</name>
-            <url>http://maven.aliyun.com/nexus/content/groups/public/</url>
+            <url>https://maven.aliyun.com/repository/public</url>
             <releases>
                 <enabled>true</enabled>
             </releases>
@@ -307,6 +307,32 @@
     </build>
 
     <profiles>
+        <!-- Explicit IDEA pre-launch task; never runs during normal builds. -->
+        <profile>
+            <id>idea-local-tunnel</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-antrun-plugin</artifactId>
+                        <version>3.1.0</version>
+                        <inherited>false</inherited>
+                        <configuration>
+                            <target>
+                                <exec executable="powershell.exe" failonerror="true" dir="${project.basedir}">
+                                    <arg value="-NoProfile" />
+                                    <arg value="-NonInteractive" />
+                                    <arg value="-ExecutionPolicy" />
+                                    <arg value="Bypass" />
+                                    <arg value="-File" />
+                                    <arg value="${project.basedir}/scripts/dev/start-pgvector-tunnel.ps1" />
+                                </exec>
+                            </target>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
         <profile>
             <id>dev</id>
             <activation>

@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>上传文档 · AI 智能体</title>
+    <style>
+      :root { color-scheme: dark; --text: rgba(255,255,255,.92); --muted: rgba(255,255,255,.66); }
+      * { box-sizing: border-box; }
+      body { margin: 0; min-height: 100vh; color: var(--text); font-family: ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Arial; background: radial-gradient(900px 550px at 20% 20%,rgba(98,246,199,.20),transparent 60%), radial-gradient(800px 500px at 85% 10%,rgba(90,169,255,.20),transparent 60%),linear-gradient(180deg,#070a12,#0b1022); }
+      .page { max-width: 760px; margin: 0 auto; padding: 32px 20px; }
+      .back { color: #62f6c7; text-decoration: none; font-size: 14px; }
+      .panel { margin-top: 24px; padding: 28px; border: 1px solid rgba(255,255,255,.12); border-radius: 18px; background: linear-gradient(180deg,rgba(255,255,255,.06),rgba(255,255,255,.03)); box-shadow: 0 22px 60px rgba(0,0,0,.45); }
+      h1 { margin: 0 0 12px; font-size: 24px; }
+      p { color: var(--muted); line-height: 1.7; font-size: 14px; }
+      label { display: block; margin: 24px 0 10px; font-size: 14px; }
+      input[type=file] { display: block; width: 100%; padding: 20px; border: 1px dashed rgba(98,246,199,.45); border-radius: 14px; background: rgba(0,0,0,.15); color: var(--text); }
+      button { margin-top: 20px; padding: 12px 20px; border: 0; border-radius: 12px; background: #62f6c7; color: #08231c; font-weight: 700; cursor: pointer; }
+      button:disabled { opacity: .55; cursor: progress; }
+      #status { margin-top: 20px; min-height: 24px; white-space: pre-wrap; word-break: break-word; }
+      #status.error { color: #ff7c96; }
+      #result { display: none; margin-top: 18px; padding: 16px; border: 1px solid rgba(98,246,199,.25); border-radius: 12px; background: rgba(98,246,199,.07); font-size: 13px; line-height: 1.8; white-space: pre-wrap; word-break: break-word; }
+    </style>
+  </head>
+  <body>
+    <div class="page">
+      <a class="back" href="./index.html">← 返回对话</a>
+      <main class="panel">
+        <h1>上传文档</h1>
+        <p>选择本地文档。上传后服务端会自动解析、切分并写入知识库；完成后即可在对话中提问。</p>
+        <form id="uploadForm">
+          <label for="file">选择文件</label>
+          <input id="file" name="file" type="file" required />
+          <button id="uploadButton" type="submit">上传并入库</button>
+        </form>
+        <div id="status" role="status" aria-live="polite"></div>
+        <div id="result"></div>
+      </main>
+    </div>
+    <script src="js/config.js"></script>
+    <script>
+      const cookie = document.cookie.split("; ").find((item) => item.startsWith("ai_agent_login="));
+      let login;
+      try { login = JSON.parse(decodeURIComponent(cookie ? cookie.slice(cookie.indexOf("=") + 1) : "")); } catch { login = null; }
+      const userId = login && login.user ? String(login.user) : "";
+      if (!userId) window.location.replace("./login.html");
+      const apiBase = (window.APP_CONFIG && window.APP_CONFIG.API_BASE) || "http://127.0.0.1:8091";
+      const form = document.getElementById("uploadForm");
+      const fileInput = document.getElementById("file");
+      const button = document.getElementById("uploadButton");
+      const status = document.getElementById("status");
+      const result = document.getElementById("result");
+      form.addEventListener("submit", async (event) => {
+        event.preventDefault();
+        const file = fileInput.files[0];
+        if (!file) return;
+        button.disabled = true;
+        status.classList.remove("error");
+        status.textContent = "正在上传、解析并入库，请稍候…";
+        result.style.display = "none";
+        const documentId = crypto.randomUUID();
+        const data = new FormData();
+        data.append("file", file);
+        data.append("userId", userId);
+        try {
+          const response = await fetch(`${apiBase}/api/v1/rag/documents/${encodeURIComponent(documentId)}/index`, { method: "POST", body: data });
+          const raw = await response.text();
+          let payload;
+          try { payload = JSON.parse(raw); } catch { throw new Error(`HTTP ${response.status}`); }
+          if (!response.ok || payload.code !== "0000" || !payload.data) {
+            throw new Error(payload.info || `HTTP ${response.status}`);
+          }
+          status.textContent = "文档已入库，可以返回对话提问。";
+          result.textContent = `文件：${payload.data.fileName}\n文档 ID：${payload.data.documentId}\n切片数：${payload.data.chunkCount}`;
+          result.style.display = "block";
+          fileInput.value = "";
+        } catch (error) {
+          status.classList.add("error");
+          status.textContent = `上传失败：${error.message || error}`;
+        } finally {
+          button.disabled = false;
+        }
+      });
+    </script>
+  </body>
+</html>

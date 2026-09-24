@@ -18,6 +18,10 @@ spring:
       max-lifetime: 1800000
       connection-timeout: 30000
       connection-test-query: SELECT 1
+  servlet:
+    multipart:
+      max-file-size: ${RAG_MAX_FILE_SIZE:20MB}
+      max-request-size: ${RAG_MAX_REQUEST_SIZE:25MB}
   flyway:
     enabled: ${RAG_FLYWAY_ENABLED:true}
     locations: classpath:db/migration
@@ -26,6 +30,10 @@ spring:
 
 # RAG 文档切分配置
 rag:
+  router:
+    enabled: ${RAG_ROUTER_ENABLED:true}
+  chat:
+    min-similarity: ${RAG_CHAT_MIN_SIMILARITY:0.35}
   chunking:
     target-tokens: 600
     max-tokens: 800

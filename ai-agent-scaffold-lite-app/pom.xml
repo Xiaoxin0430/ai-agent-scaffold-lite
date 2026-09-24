@@ -160,6 +160,17 @@
     <build>
         <finalName>ai-agent-scaffold-lite-app</finalName>
         <resources>
+            <!-- Serve the existing frontend from Spring Boot in IDEA and packaged runs. -->
+            <resource>
+                <directory>${project.basedir}/../docs/dev-ops/nginx/html</directory>
+                <targetPath>static</targetPath>
+                <filtering>false</filtering>
+                <includes>
+                    <include>*.html</include>
+                    <include>js/**</include>
+                    <include>images/**</include>
+                </includes>
+            </resource>
             <resource>
                 <directory>src/main/resources</directory>
                 <filtering>true</filtering>

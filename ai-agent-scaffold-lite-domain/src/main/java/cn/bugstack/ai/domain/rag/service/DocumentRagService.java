@@ -104,9 +104,15 @@ public class DocumentRagService implements IDocumentRagService {
     public DocumentIndexResultVO indexDocument(String documentId,
                                                String fileName,
                                                InputStream inputStream) {
+        return indexDocument(documentId, fileName, inputStream, null);
+    }
+
+    @Override
+    public DocumentIndexResultVO indexDocument(String documentId, String fileName,
+                                               InputStream inputStream, String ownerUserId) {
         EmbeddingResultVO embeddingResult = parseCleanChunkAndEmbed(
                 documentId, fileName, inputStream);
-        return documentVectorStorePort.replaceDocument(embeddingResult);
+        return documentVectorStorePort.replaceDocument(embeddingResult, ownerUserId);
     }
 
     @Override
@@ -114,6 +120,13 @@ public class DocumentRagService implements IDocumentRagService {
                                                              Integer topK,
                                                              Double minSimilarity,
                                                              List<String> documentIds) {
+        return searchSimilarChunks(query, topK, minSimilarity, documentIds, null);
+    }
+
+    @Override
+    public List<SimilarDocumentChunkVO> searchSimilarChunks(String query, Integer topK,
+                                                             Double minSimilarity, List<String> documentIds,
+                                                             String ownerUserId) {
         if (query == null || query.isBlank()) {
             throw new IllegalArgumentException("query cannot be blank");
         }
@@ -149,6 +162,7 @@ public class DocumentRagService implements IDocumentRagService {
                 .topK(resolvedTopK)
                 .minSimilarity(resolvedMinSimilarity)
                 .documentIds(resolvedDocumentIds)
+                .ownerUserId(ownerUserId)
                 .build();
         return documentVectorStorePort.search(command);
     }
