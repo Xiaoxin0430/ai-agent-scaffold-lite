@@ -18,7 +18,7 @@ import java.util.List;
 @Slf4j
 @RunWith(SpringRunner.class)
 @SpringBootTest
-public class ChatServiceTest {
+public class ChatServiceLiveTest {
 
     @Resource
     private IChatService chatService;

@@ -28,9 +28,8 @@ public class TikaDocumentParserPortTest {
 
             ParsedDocumentVO parsedDocumentVO = documentParser.parse("test.pdf", inputStream);
 
-            System.out.println(parsedDocumentVO.getText());
-            System.out.println("\n");
-            System.out.println(parsedDocumentVO.getMetadata());
+            Assert.assertNotNull(parsedDocumentVO.getText());
+            Assert.assertFalse("解析结果元数据不能为空", parsedDocumentVO.getMetadata().isEmpty());
 
         }
     }

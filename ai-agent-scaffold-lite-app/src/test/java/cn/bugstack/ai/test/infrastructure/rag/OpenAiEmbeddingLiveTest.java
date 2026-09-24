@@ -22,7 +22,7 @@ import javax.annotation.Resource;
 @SpringBootTest(
         classes = RagEmbeddingConfig.class,
         webEnvironment = SpringBootTest.WebEnvironment.NONE)
-public class OpenAiEmbeddingIntegrationTest {
+public class OpenAiEmbeddingLiveTest {
 
     @Resource
     private RagEmbeddingProperties properties;

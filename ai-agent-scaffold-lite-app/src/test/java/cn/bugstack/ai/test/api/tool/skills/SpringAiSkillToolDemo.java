@@ -26,7 +26,7 @@ import java.util.ArrayList;
  * 2025/12/14 09:51
  */
 @Slf4j
-public class SpringAiToolTest {
+public class SpringAiSkillToolDemo {
 
     public static void main(String[] args) {
         OpenAiApi openAiApi = OpenAiApi.builder()

@@ -27,7 +27,7 @@ import java.util.Map;
  *
  * @author xiaoxin
  */
-public class RagAnswerEndToEndTest {
+public class RagAnswerEndToEndLiveTest {
 
     @Test
     public void test_index_retrieve_and_generate_answer_through_http() throws Exception {

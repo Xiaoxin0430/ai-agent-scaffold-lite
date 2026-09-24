@@ -21,7 +21,7 @@ import java.util.Map;
 
 import static com.google.adk.agents.LlmAgent.IncludeContents.NONE;
 
-public class LoopAgentTest {
+public class LoopAgentDemo {
 
     private static final String APP_NAME = "IterativeWritingPipeline";
     private static final String USER_ID = "test_user_456";
@@ -138,7 +138,7 @@ public class LoopAgentTest {
                                 """)
                         .outputKey(STATE_CURRENT_DOC)
                         .includeContents(NONE)
-                        .tools(FunctionTool.create(LoopAgentTest.class, "exitLoop"))
+                        .tools(FunctionTool.create(LoopAgentDemo.class, "exitLoop"))
                         .build();
 
         // STEP 2: Refinement Loop Agent

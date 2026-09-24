@@ -69,5 +69,19 @@ powershell.exe -NoProfile -ExecutionPolicy Bypass -File scripts/dev/start-pgvect
 - `RAG_CHAT_MIN_SIMILARITY`：自动聊天检索的最低相似度，默认 `0.35`。
 - `RAG_MAX_FILE_SIZE`、`RAG_MAX_REQUEST_SIZE`：上传大小限制，默认 `20MB`、`25MB`。
 
-真实 HTTP 端到端测试默认不会消耗外部额度；需要联调时显式传入 `-Drag.answer.live-test=true` 运行 `RagAnswerEndToEndTest`。
+真实 HTTP 端到端测试默认不会消耗外部额度；需要联调时显式传入 `-Drag.answer.live-test=true` 运行 `RagAnswerEndToEndLiveTest`。
+
+## 自动化测试
+
+项目通过 Maven Wrapper 固定构建入口，并将快速测试、容器集成测试、真实外部服务联调和示例代码分开管理。
+
+```powershell
+# 日常开发
+.\mvnw.cmd test
+
+# 提交前完整校验：单元测试、集成测试、JaCoCo 报告
+.\mvnw.cmd verify
+```
+
+测试分层、命名和外部联调方式见 [测试指南](docs/testing.md)。
 

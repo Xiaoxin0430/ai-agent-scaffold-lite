@@ -20,7 +20,7 @@ import java.time.Duration;
  * 2025/12/14 09:20
  */
 @Slf4j
-public class LangChain4jToolTest {
+public class LangChain4jToolDemo {
 
     interface Assistant {
         String chat(String message);

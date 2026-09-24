@@ -9,7 +9,7 @@ import org.springframework.ai.openai.OpenAiChatModel;
 import org.springframework.ai.openai.OpenAiChatOptions;
 import org.springframework.ai.openai.api.OpenAiApi;
 
-public class ParallelAgentTest {
+public class ParallelAgentDemo {
 
     private static final String APP_NAME = "parallel_research_app";
     private static final String USER_ID = "research_user_01";

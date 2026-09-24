@@ -1,4 +1,6 @@
-!.mvn/wrapper/maven-wrapper.jar
+!/.mvn/wrapper/maven-wrapper.properties
+!/mvnw
+!/mvnw.cmd
 /.env
 !**/src/main/**/target/
 !**/src/test/**/target/
@@ -36,7 +38,9 @@ build/
 
 ### Mac OS ###
 .DS_Store
-/.mvn/
+/.mvn/*
+!/.mvn/wrapper/
+!/.mvn/wrapper/maven-wrapper.properties
 /.idea/
 /data/
 /ai-agent-scaffold-lite-app/data/
@@ -45,3 +49,5 @@ build/
 /ai-agent-scaffold-lite-domain/target/
 **/target/
 /RAG开发文档.md
+/hs_err_pid*.log
+/replay_pid*.log

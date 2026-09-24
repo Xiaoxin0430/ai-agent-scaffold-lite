@@ -13,7 +13,7 @@ import org.springframework.ai.openai.api.OpenAiApi;
  * 2025/12/14 09:15
  */
 @Slf4j
-public class SpringAiApiTest {
+public class SpringAiApiDemo {
 
     public static void main(String[] args) {
         OpenAiApi openAiApi = OpenAiApi.builder()

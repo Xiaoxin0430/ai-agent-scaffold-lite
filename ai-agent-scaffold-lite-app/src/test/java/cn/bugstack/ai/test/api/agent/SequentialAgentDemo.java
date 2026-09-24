@@ -22,7 +22,7 @@ import org.springframework.ai.openai.api.OpenAiApi;
 import java.time.Duration;
 
 @Slf4j
-public class SequentialAgentTest {
+public class SequentialAgentDemo {
 
     private static final String APP_NAME = "CodePipelineAgent";
     private static final String USER_ID = "test_user_456";

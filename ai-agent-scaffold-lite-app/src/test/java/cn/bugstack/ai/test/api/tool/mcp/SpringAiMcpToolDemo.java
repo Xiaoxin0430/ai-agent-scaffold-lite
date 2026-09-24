@@ -4,7 +4,6 @@ import io.modelcontextprotocol.client.McpClient;
 import io.modelcontextprotocol.client.McpSyncClient;
 import io.modelcontextprotocol.client.transport.HttpClientSseClientTransport;
 import lombok.extern.slf4j.Slf4j;
-import org.junit.Test;
 import org.springframework.ai.chat.model.ChatModel;
 import org.springframework.ai.mcp.SyncMcpToolCallbackProvider;
 import org.springframework.ai.openai.OpenAiChatModel;
@@ -22,7 +21,7 @@ import java.time.Duration;
  * 2025/12/14 09:51
  */
 @Slf4j
-public class SpringAiToolTest {
+public class SpringAiMcpToolDemo {
 
     public static void main(String[] args) {
         OpenAiApi openAiApi = OpenAiApi.builder()
@@ -65,7 +64,6 @@ public class SpringAiToolTest {
         return mcpSyncClient;
     }
 
-    @Test
     public void test_url() throws MalformedURLException {
         String fullUrl = "http://appbuilder.baidu.com/v2/ai_search/mcp/sse?api_key=" + System.getenv("BAIDU_MCP_API_KEY");
 

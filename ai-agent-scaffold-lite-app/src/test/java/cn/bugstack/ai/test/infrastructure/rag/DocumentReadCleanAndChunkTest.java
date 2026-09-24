@@ -1,7 +1,6 @@
 package cn.bugstack.ai.test.infrastructure.rag;
 
 import cn.bugstack.ai.domain.rag.model.entity.DocumentChunkingCommandEntity;
-import cn.bugstack.ai.domain.rag.model.entity.DocumentChunkEntity;
 import cn.bugstack.ai.domain.rag.model.valobj.ChunkingConfigVO;
 import cn.bugstack.ai.domain.rag.model.valobj.ChunkingResultVO;
 import cn.bugstack.ai.domain.rag.model.valobj.CleanedDocumentVO;
@@ -66,12 +65,6 @@ public class DocumentReadCleanAndChunkTest {
                     .cleanedDocument(cleaned)
                     .config(config)
                     .build());
-
-            System.out.println("========== 文档切分结果 ==========");
-            for (DocumentChunkEntity chunk : result.getChunks()) {
-                System.out.println(chunk);
-            }
-            System.out.println("================================");
 
             Assert.assertFalse(cleaned.getCleanedText().isBlank());
             Assert.assertTrue(result.getChunkCount() > 0);

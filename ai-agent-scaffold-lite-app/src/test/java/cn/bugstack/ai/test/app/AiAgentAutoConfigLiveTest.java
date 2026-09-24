@@ -21,12 +21,11 @@ import javax.annotation.Resource;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.CountDownLatch;
 
 @Slf4j
 @RunWith(SpringRunner.class)
 @SpringBootTest
-public class AiAgentAutoConfigTest {
+public class AiAgentAutoConfigLiveTest {
 
     @Resource
     private ApplicationContext applicationContext;
@@ -53,7 +52,7 @@ public class AiAgentAutoConfigTest {
 
         log.info("测试结果:{}", JSON.toJSONString(outputs));
 
-        new CountDownLatch(1).await();
+        org.junit.Assert.assertFalse("agent should emit at least one event", outputs.isEmpty());
     }
 
     @Test

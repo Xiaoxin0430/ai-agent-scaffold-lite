@@ -13,7 +13,7 @@ import lombok.extern.slf4j.Slf4j;
  * 2025/12/14 09:20
  */
 @Slf4j
-public class LangChain4jApiTest {
+public class LangChain4jApiDemo {
 
     public static void main(String[] args) {
         OpenAiChatModel model = OpenAiChatModel.builder()
