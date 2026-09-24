@@ -11,6 +11,8 @@
 | 真实模型联调 | `*LiveTest.java` | 真实 API Key、数据库或 MCP | 否 |
 | 示例程序 | `*Demo.java` | 按示例决定 | 否 |
 
+测试代码跟随被测生产代码放置：领域测试位于 `ai-agent-scaffold-lite-domain/src/test`，基础设施测试位于 `ai-agent-scaffold-lite-infrastructure/src/test`，接口测试位于 `ai-agent-scaffold-lite-trigger/src/test`，数据库容器测试位于 `ai-agent-scaffold-lite-integration-test/src/test`。Spring Boot 装配、HTTP 端到端测试和演示代码位于 app 模块。
+
 ## 常用命令
 
 ```bash

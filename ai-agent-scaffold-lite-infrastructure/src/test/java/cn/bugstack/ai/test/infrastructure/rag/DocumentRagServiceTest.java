@@ -1,4 +1,4 @@
-package cn.bugstack.ai.test.domain.rag;
+package cn.bugstack.ai.test.infrastructure.rag;
 
 import cn.bugstack.ai.domain.rag.adapter.port.IDocumentCleanerPort;
 import cn.bugstack.ai.domain.rag.adapter.port.IDocumentChunkerPort;

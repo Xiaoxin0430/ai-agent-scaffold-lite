@@ -1,4 +1,4 @@
-package cn.bugstack.ai.test.integration;
+package cn.bugstack.ai.test.app;
 
 import cn.bugstack.ai.Application;
 import com.fasterxml.jackson.databind.JsonNode;

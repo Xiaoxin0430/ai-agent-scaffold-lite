@@ -1,4 +1,4 @@
-package cn.bugstack.ai.test.infrastructure.rag;
+package cn.bugstack.ai.test.app;
 
 import cn.bugstack.ai.config.RagEmbeddingConfig;
 import cn.bugstack.ai.config.RagEmbeddingProperties;

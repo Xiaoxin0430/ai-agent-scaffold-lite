@@ -1,4 +1,4 @@
-package cn.bugstack.ai.test.domain.agent;
+package cn.bugstack.ai.test.app;
 
 import cn.bugstack.ai.domain.agent.model.entity.ChatCommandEntity;
 import cn.bugstack.ai.domain.agent.service.IChatService;
