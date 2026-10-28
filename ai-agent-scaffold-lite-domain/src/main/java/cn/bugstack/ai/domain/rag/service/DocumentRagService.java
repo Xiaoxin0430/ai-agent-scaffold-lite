@@ -70,22 +70,18 @@ public class DocumentRagService implements IDocumentRagService {
     private RagAnswerConfigVO ragAnswerConfig;
 
     @Override
-    public CleanedDocumentVO parseAndClean(String fileName, InputStream inputStream) {
-        ParsedDocumentVO parsedDocument = documentParserPort.parse(fileName, inputStream);
-        return documentCleanerPort.clean(parsedDocument);
+    public DocumentIndexResultVO indexDocument(String documentId,
+                                               String fileName,
+                                               InputStream inputStream) {
+        return indexDocument(documentId, fileName, inputStream, null);
     }
 
     @Override
-    public ChunkingResultVO parseCleanAndChunk(String documentId,
-                                               String fileName,
-                                               InputStream inputStream) {
-        CleanedDocumentVO cleanedDocument = parseAndClean(fileName, inputStream);
-        DocumentChunkingCommandEntity command = DocumentChunkingCommandEntity.builder()
-                .documentId(documentId)
-                .cleanedDocument(cleanedDocument)
-                .config(chunkingConfig)
-                .build();
-        return documentChunkerPort.chunk(command);
+    public DocumentIndexResultVO indexDocument(String documentId, String fileName,
+                                               InputStream inputStream, String ownerUserId) {
+        EmbeddingResultVO embeddingResult = parseCleanChunkAndEmbed(
+                documentId, fileName, inputStream);
+        return documentVectorStorePort.replaceDocument(embeddingResult, ownerUserId);
     }
 
     @Override
@@ -101,18 +97,22 @@ public class DocumentRagService implements IDocumentRagService {
     }
 
     @Override
-    public DocumentIndexResultVO indexDocument(String documentId,
+    public ChunkingResultVO parseCleanAndChunk(String documentId,
                                                String fileName,
                                                InputStream inputStream) {
-        return indexDocument(documentId, fileName, inputStream, null);
+        CleanedDocumentVO cleanedDocument = parseAndClean(fileName, inputStream);
+        DocumentChunkingCommandEntity command = DocumentChunkingCommandEntity.builder()
+                .documentId(documentId)
+                .cleanedDocument(cleanedDocument)
+                .config(chunkingConfig)
+                .build();
+        return documentChunkerPort.chunk(command);
     }
-
+    //文件解析和清洗
     @Override
-    public DocumentIndexResultVO indexDocument(String documentId, String fileName,
-                                               InputStream inputStream, String ownerUserId) {
-        EmbeddingResultVO embeddingResult = parseCleanChunkAndEmbed(
-                documentId, fileName, inputStream);
-        return documentVectorStorePort.replaceDocument(embeddingResult, ownerUserId);
+    public CleanedDocumentVO parseAndClean(String fileName, InputStream inputStream) {
+        ParsedDocumentVO parsedDocument = documentParserPort.parse(fileName, inputStream);
+        return documentCleanerPort.clean(parsedDocument);
     }
 
     @Override

@@ -40,24 +40,68 @@ public class LlmRagRouter implements IRagRouter {
             throw new IllegalArgumentException("question cannot be blank");
         }
         if (!enabled) {
-            return RagRouteDecision.direct();
+            RagRouteDecision decision = RagRouteDecision.builder()
+                    .retrieve(false)
+                    .searchQuery("")
+                    .build();
+            return decision;
         }
         try {
-            String raw = chatModel.call(PROMPT.formatted(recentAnswer == null ? "" : recentAnswer, question));
-            if (raw == null) return RagRouteDecision.retrieve(question);
+            String raw = chatModel.call(
+                    PROMPT.formatted(recentAnswer == null ? "" : recentAnswer, question)
+            );
+            if (raw == null) {
+                RagRouteDecision decision = RagRouteDecision.builder()
+                        .retrieve(true)
+                        .searchQuery(question)
+                        .build();
+                return decision;
+            }
             int start = raw.indexOf('{');
             int end = raw.lastIndexOf('}');
-            if (start < 0 || end <= start) return RagRouteDecision.retrieve(question);
+            if (start < 0 || end <= start) {
+                RagRouteDecision decision = RagRouteDecision.builder()
+                        .retrieve(true)
+                        .searchQuery(question)
+                        .build();
+                return decision;
+            }
             JsonNode json = objectMapper.readTree(raw.substring(start, end + 1));
             String route = json.path("route").asText("");
-            if ("DIRECT".equals(route)) return RagRouteDecision.direct();
-            if (!"RAG".equals(route)) return RagRouteDecision.retrieve(question);
+            if ("DIRECT".equals(route)) {
+                RagRouteDecision decision = RagRouteDecision.builder()
+                        .retrieve(false)
+                        .searchQuery("")
+                        .build();
+                return decision;
+            }
+            if (!"RAG".equals(route)) {
+                RagRouteDecision decision = RagRouteDecision.builder()
+                        .retrieve(true)
+                        .searchQuery(question)
+                        .build();
+                return decision;
+            }
             String searchQuery = json.path("searchQuery").asText("").trim();
-            if (searchQuery.isEmpty()) return RagRouteDecision.retrieve(question);
-            return RagRouteDecision.retrieve(searchQuery.substring(0, Math.min(searchQuery.length(), 500)));
+            if (searchQuery.isEmpty()) {
+                RagRouteDecision decision = RagRouteDecision.builder()
+                        .retrieve(true)
+                        .searchQuery(question)
+                        .build();
+                return decision;
+            }
+            RagRouteDecision decision = RagRouteDecision.builder()
+                    .retrieve(true)
+                    .searchQuery(searchQuery.substring(0, Math.min(searchQuery.length(), 500)))
+                    .build();
+            return decision;
         } catch (Exception e) {
             log.warn("RAG 路由失败，改为尝试检索: {}", e.getMessage());
-            return RagRouteDecision.retrieve(question);
+            RagRouteDecision decision = RagRouteDecision.builder()
+                    .retrieve(true)
+                    .searchQuery(question)
+                    .build();
+            return decision;
         }
     }
 }

@@ -20,8 +20,8 @@ public class LlmRagRouterTest {
         LlmRagRouter router = new LlmRagRouter(model, new ObjectMapper());
         ReflectionTestUtils.setField(router, "enabled", true);
 
-        Assert.assertEquals(RagRouteDecision.direct(), router.decide("你好", ""));
-        Assert.assertEquals(RagRouteDecision.retrieve("报销期限"),
+        Assert.assertEquals(RagRouteDecision.builder().retrieve(false).searchQuery("").build(), router.decide("你好", ""));
+        Assert.assertEquals(RagRouteDecision.builder().retrieve(true).searchQuery("报销期限").build(),
                 router.decide("它的期限呢？", "刚才回答了报销规定"));
     }
 
@@ -32,7 +32,7 @@ public class LlmRagRouterTest {
         LlmRagRouter router = new LlmRagRouter(model, new ObjectMapper());
         ReflectionTestUtils.setField(router, "enabled", true);
 
-        Assert.assertEquals(RagRouteDecision.retrieve("报销规则是什么"),
+        Assert.assertEquals(RagRouteDecision.builder().retrieve(true).searchQuery("报销规则是什么").build(),
                 router.decide("报销规则是什么", ""));
     }
 }

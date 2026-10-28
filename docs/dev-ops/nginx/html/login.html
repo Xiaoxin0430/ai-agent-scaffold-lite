@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>AI 智能体 · 登录</title>
+    <title>群智工坊 · 登录</title>
     <style>
       :root {
         --bg0: #070a12;
@@ -308,13 +308,61 @@
         text-align: center;
       }
 
+      /* Match the light chat workspace */
+      :root {
+        --bg0: #ffffff;
+        --bg1: #ffffff;
+        --card: #ffffff;
+        --card2: #f7f8fa;
+        --text: #20242b;
+        --muted: #5f6670;
+        --muted2: #747b85;
+        --border: #e8eaed;
+        --primary: #242a32;
+        --primary2: #242a32;
+        --danger: #c94444;
+        --shadow: none;
+      }
+      body { background: #ffffff; }
+      .page { padding: 0; }
+      .shell { width: 100%; min-height: 100vh; grid-template-columns: minmax(0, 1fr) minmax(360px, 460px); gap: 0; }
+      .panel { border: 0; border-radius: 0; background: none; box-shadow: none; }
+      .hero { padding: clamp(32px, 5vw, 82px); background: #f8f9fb; border-right: 1px solid var(--border); justify-content: center; gap: 24px; }
+      .brand-badge { width: 38px; height: 38px; border-radius: 10px; background: #e9edf1; color: #242a32; box-shadow: none; }
+      .brand-title strong { font-size: 14px; }
+      .hero h1 { margin-top: 18px; max-width: 15ch; font-size: clamp(30px, 3.4vw, 48px); line-height: 1.2; letter-spacing: -1px; }
+      .hero p { max-width: 58ch; font-size: 15px; }
+      .hero-list { gap: 10px; max-width: 660px; }
+      .hero-item { padding: 16px; border: 1px solid #e7eaee; background: #ffffff; border-radius: 12px; }
+      .hero-dot { width: 8px; height: 8px; background: #647c69; box-shadow: none; }
+      .hero-item b { font-size: 13px; }
+      .hero-visual { display: none; }
+      .login { padding: 32px; background: #ffffff; align-items: center; }
+      .card { width: min(360px, 100%); padding: 0; border: 0; border-radius: 0; background: none; }
+      .card h2 { font-size: 24px; margin-bottom: 8px; }
+      .card .hint { margin-bottom: 24px; }
+      input[type="text"], input[type="password"] { border: 1px solid #d9dee5; background: #ffffff; border-radius: 9px; font-size: 14px; }
+      input[type="text"]:focus, input[type="password"]:focus { border-color: #8998a9; box-shadow: 0 0 0 3px #edf1f5; }
+      input::placeholder { color: #939aa3; }
+      .btn { border-radius: 9px; background: #242a32; color: #ffffff; box-shadow: none; }
+      .btn-secondary { background: #ffffff; border: 1px solid #dfe3e8; color: var(--text); }
+      .logged { border-color: #dfe3e8; background: #f8f9fb; }
+      .footer { width: min(360px, 100%); margin-top: 4px; color: var(--muted2); }
       @media (max-width: 980px) {
         .shell {
           grid-template-columns: 1fr;
         }
-        .hero-visual img {
-          height: 300px;
-        }
+        .hero { border-right: 0; border-bottom: 1px solid var(--border); padding: 36px 24px; }
+        .hero h1 { margin-top: 0; }
+        .login { padding: 40px 24px; }
+      }
+      @media (max-width: 600px) {
+        .hero { padding: 28px 20px; gap: 18px; }
+        .hero h1 { font-size: 30px; }
+        .hero-list { grid-template-columns: 1fr 1fr; gap: 8px; }
+        .hero-item { padding: 12px; }
+        .actions { flex-wrap: wrap; }
+        .actions .btn { flex: 1 1 100%; }
       }
     </style>
   </head>
@@ -326,44 +374,44 @@
           <div class="brand">
             <div class="brand-badge" aria-hidden="true">AI</div>
             <div class="brand-title">
-              <strong>AI 智能体工作台 By Ai Agent Scaffold - @小傅哥</strong>
-              <span>更快搭建 · 更稳运行 · 更易运维</span>
+              <strong>群智工坊</strong>
+              <span>按场景配置和使用智能体</span>
             </div>
           </div>
 
-          <h1>一个能“帮你把事做完”的智能体登录页</h1>
+          <h1>让不同智能体处理不同任务</h1>
           <p>
-            左侧展示智能体能力与效果图，右侧进行登录。当前为演示登录：
-            账号 <b>admin</b>，密码 <b>admin</b>。登录成功后会在浏览器保存 cookie。
+            在同一个工作台选择已配置的智能体，围绕不同场景发起对话。
+            平台支持按配置组合模型、工具与工作流，也可接入文档检索能力。
           </p>
 
           <div class="hero-list">
             <div class="hero-item">
               <div class="hero-dot" aria-hidden="true"></div>
               <div>
-                <b>工具调用</b>
-                <span>支持 API / Shell / 文件等执行链路编排</span>
+                <b>智能体配置</b>
+                <span>按场景配置角色、模型和能力</span>
               </div>
             </div>
             <div class="hero-item">
               <div class="hero-dot" aria-hidden="true"></div>
               <div>
-                <b>记忆与上下文</b>
-                <span>可配置可审计，减少重复沟通成本</span>
+                <b>工作流组合</b>
+                <span>支持顺序、并行与循环流程</span>
               </div>
             </div>
             <div class="hero-item">
               <div class="hero-dot" aria-hidden="true"></div>
               <div>
-                <b>多模型路由</b>
-                <span>按场景选择最合适的模型与策略</span>
+                <b>工具接入</b>
+                <span>通过配置扩展智能体可用工具</span>
               </div>
             </div>
             <div class="hero-item">
               <div class="hero-dot" aria-hidden="true"></div>
               <div>
-                <b>可观测性</b>
-                <span>链路、成本、失败原因都能追踪</span>
+                <b>文档问答</b>
+                <span>让智能体结合上传的资料回答</span>
               </div>
             </div>
           </div>
@@ -408,7 +456,7 @@
             </div>
           </div>
 
-          <div class="footer">© AI Agent Scaffold · Nginx 静态页面示例</div>
+          <div class="footer">群智工坊 · 演示环境</div>
         </section>
       </div>
     </main>

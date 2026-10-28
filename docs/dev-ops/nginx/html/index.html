@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>AI 智能体 · 对话</title>
+    <title>群智工坊 · 对话</title>
     <style>
       :root {
         --bg0: #070a12;
@@ -463,6 +463,72 @@
         align-items: center;
       }
 
+      /* Light workspace theme */
+      :root {
+        --bg0: #ffffff;
+        --bg1: #ffffff;
+        --text: #20242b;
+        --muted: #5f6670;
+        --muted2: #747b85;
+        --border: #e8eaed;
+        --card: #ffffff;
+        --card2: #f7f8fa;
+        --primary: #242a32;
+        --primary2: #242a32;
+        --danger: #c94444;
+        --shadow: none;
+      }
+      body { background: var(--bg1); }
+      .topbar { position: relative; background: #ffffff; border-bottom: 1px solid var(--border); backdrop-filter: none; }
+      .topbar-inner { width: 100%; max-width: none; min-height: 62px; padding: 10px 26px; }
+      .brand-badge { width: 34px; height: 34px; border-radius: 10px; background: #e9edf1; color: #242a32; box-shadow: none; font-size: 12px; }
+      .brand-title strong { font-size: 13px; font-weight: 650; }
+      .brand-title span { font-size: 11px; }
+      .select, .pill { background: #ffffff; border-color: #dfe3e8; border-radius: 8px; box-shadow: none; }
+      .select:focus { border-color: #8998a9; box-shadow: 0 0 0 2px #e8edf3; }
+      .btn { background: #242a32; color: #ffffff; box-shadow: none; border-radius: 8px; }
+      .btn:hover { filter: brightness(1.12); }
+      .btn-secondary { background: #ffffff; color: var(--text); border: 1px solid #dfe3e8; }
+      .main { padding: 0; justify-content: stretch; }
+      .shell { width: 100%; grid-template-columns: 254px minmax(0, 1fr); gap: 0; }
+      .panel { border: 0; border-radius: 0; background: none; box-shadow: none; }
+      .left { padding: 24px 16px 18px; gap: 10px; background: #f8f9fb; border-right: 1px solid var(--border); }
+      .left h2 { color: var(--text); font-size: 13px; padding: 0 10px; }
+      .left p { padding: 0 10px 14px; color: var(--muted2); }
+      .hero { display: none; }
+      .meta { gap: 3px; }
+      .kv { padding: 10px; border: 0; border-radius: 8px; background: transparent; align-items: flex-start; flex-direction: column; gap: 5px; }
+      .kv:hover { background: #eef1f4; }
+      .kv span { font-size: 11px; }
+      .kv b { max-width: 100%; font-size: 12px; font-weight: 500; }
+      .upload-entry { padding: 11px; }
+      .right { background: #ffffff; }
+      .chat-header { flex: 0 0 auto; display: flex; justify-content: space-between; align-items: center; padding: 16px 32px; border-bottom: 1px solid var(--border); }
+      .chat-header > div { display: flex; flex-direction: column; gap: 4px; }
+      .chat-header strong { font-size: 14px; font-weight: 650; }
+      .chat-header span { font-size: 11px; color: var(--muted2); }
+      .chat-header-mark { color: #408564 !important; }
+      .chat { width: 100%; padding: 28px max(32px, calc((100% - 880px) / 2)); }
+      .chat::-webkit-scrollbar-thumb { background: #d9dee5; }
+      .chat-tip { color: var(--muted2); }
+      .msg-row { margin: 18px 0; }
+      .msg-row.user { justify-content: flex-end; }
+      .msg-row.agent { justify-content: flex-start; }
+      .bubble { max-width: min(82%, 760px); border: 0; border-radius: 12px; padding: 13px 16px; background: #f6f7f9; font-size: 14px; line-height: 1.75; }
+      .bubble.user { background: #edf2f7; border: 1px solid #e2e9f0; }
+      .bubble.agent { background: #f7f8fa; border: 1px solid #eceef1; }
+      .bubble .meta-line { color: var(--muted2); }
+      .bubble .source-line { border-color: #e1e4e8; }
+      .composer { width: min(944px, 100%); margin: 0 auto; padding: 14px 32px 22px; border: 0; background: transparent; }
+      .textarea { min-height: 56px; background: #ffffff; border: 1px solid #d9dee5; border-radius: 12px; font-size: 14px; padding: 15px; }
+      .textarea:focus { border-color: #8998a9; box-shadow: 0 0 0 3px #edf1f5; }
+      .textarea::placeholder { color: #939aa3; }
+      .status { width: min(944px, 100%); margin: 0 auto; padding: 0 32px; }
+      .modal-backdrop { background: rgba(25, 35, 48, .3); }
+      .modal { background: #ffffff; border: 1px solid #dfe3e8; box-shadow: 0 24px 80px rgba(28, 40, 56, .18); }
+      .modal-header { border-color: var(--border); }
+      .modal-body p { color: var(--muted); }
+      .modal-body code { background: #f7f8fa; color: var(--text); border-color: var(--border); }
       @media (max-width: 980px) {
         .shell {
           grid-template-columns: 1fr;
@@ -475,6 +541,18 @@
         }
         .mobile-upload-entry { display: inline-block; text-decoration: none; }
       }
+      @media (max-width: 600px) {
+        .topbar-inner { padding: 10px 14px; gap: 8px; }
+        .brand { gap: 8px; }
+        .brand-title span, .pill, .chat-header-mark { display: none; }
+        .controls { gap: 6px; }
+        .controls .btn, .select { padding: 8px; font-size: 12px; }
+        .chat-header { padding: 14px 18px; }
+        .chat { padding: 18px; }
+        .bubble { max-width: 92%; }
+        .composer { padding: 10px 14px 16px; }
+        .status { padding: 0 14px; }
+      }
     </style>
   </head>
   <body>
@@ -484,7 +562,7 @@
           <div class="brand">
             <div class="brand-badge" aria-hidden="true">AI</div>
             <div class="brand-title">
-              <strong>AI 智能体对话 By Ai Agent Scaffold - @小傅哥</strong>
+              <strong>群智工坊</strong>
               <span id="apiHint">API: 未配置</span>
             </div>
           </div>
@@ -506,7 +584,7 @@
         <div class="shell">
           <aside class="panel left" aria-label="信息面板">
             <h2>当前会话</h2>
-            <p>用户消息在左侧气泡，智能体回复在右侧气泡。</p>
+            <p>对话与资料</p>
 
             <div class="hero" aria-label="AI 效果图">
               <img src="images/ai-hero.svg" alt="AI 智能体效果图" />
@@ -530,6 +608,13 @@
           </aside>
 
           <main class="panel right" aria-label="对话区域">
+            <div class="chat-header">
+              <div>
+                <strong>对话</strong>
+                <span>选择已配置的智能体，开始对话</span>
+              </div>
+              <span class="chat-header-mark" aria-hidden="true">● 在线</span>
+            </div>
             <div class="chat" id="chat">
               <p class="chat-tip" id="chatTip">
                 选择智能体后开始对话。每次发送会先创建 sessionId，再调用 chat 接口。
@@ -605,6 +690,17 @@
           .replaceAll(">", "&gt;")
           .replaceAll('"', "&quot;")
           .replaceAll("'", "&#39;");
+      }
+
+      function formatAgentReply(text) {
+        return String(text || "")
+          .replace(/\r\n/g, "\n")
+          .replace(/```[^\n]*\n?/g, "")
+          .replace(/\*\*/g, "")
+          .replace(/__/g, "")
+          .replace(/^#{1,6}[ \t]+/gm, "")
+          .replace(/^[ \t]*[-*][ \t]+/gm, "")
+          .replace(/`([^`]+)`/g, "$1");
       }
 
       function formatTime(ts) {
@@ -762,11 +858,8 @@
           data.map((x) => {
             const id = x.agentId || "";
             const name = x.agentName || id;
-            const desc = x.agentDesc ? ` - ${x.agentDesc}` : "";
             const selected = id && id === lastAgentId ? "selected" : "";
-            return `<option value="${escapeHtml(id)}" ${selected}>${escapeHtml(
-              name
-            )}${escapeHtml(desc)}</option>`;
+            return `<option value="${escapeHtml(id)}" ${selected}>${escapeHtml(name)}</option>`;
           })
         );
         dom.agentSelect.innerHTML = options.join("");
@@ -908,7 +1001,7 @@
             sessionId,
             message,
             (text, author) => {
-              agentBubble.firstChild.textContent = text;
+              agentBubble.firstChild.textContent = formatAgentReply(text);
               setStatus(`${author} 正在回复…`, "info");
               scrollToBottom();
             },
@@ -927,7 +1020,7 @@
               scrollToBottom();
             }
           );
-          agentBubble.firstChild.textContent = reply || "(空响应)";
+          agentBubble.firstChild.textContent = formatAgentReply(reply) || "(空响应)";
           setStatus("已完成。", "info");
         } catch (err) {
           const msg = err && err.message ? err.message : "请求失败";

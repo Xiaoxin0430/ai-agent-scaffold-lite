@@ -45,9 +45,10 @@ public class DocumentCleanerPort implements IDocumentCleanerPort {
     @Override
     public CleanedDocumentVO clean(ParsedDocumentVO parsedDocument) {
         Objects.requireNonNull(parsedDocument, "parsedDocument cannot be null");
-
+        //取出文件名和文本
         String fileName = resolveFileName(parsedDocument.getFileName());
         String rawText = parsedDocument.getText() == null ? "" : parsedDocument.getText();
+        //包装为SpringAI的Document
         List<Document> documents;
         try {
             documents = List.of(new Document(rawText, toSpringAiMetadata(parsedDocument)));

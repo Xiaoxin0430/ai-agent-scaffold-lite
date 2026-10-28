@@ -37,16 +37,17 @@ public class TikaDocumentParserPort implements IDocumentParserPort {
 
     @Override
     public ParsedDocumentVO parse(String fileName, InputStream inputStream) {
+        //输入检验
         if (inputStream == null) {
             throw new IllegalArgumentException("inputStream cannot be null");
         }
-
+        //准备文件名与元数据
         String resolvedFileName = fileName == null || fileName.isBlank() ? "unknown" : fileName;
         Metadata metadata = new Metadata();
         metadata.set(TikaCoreProperties.RESOURCE_NAME_KEY, resolvedFileName);
-
+        //准备文字接收器
         BodyContentHandler contentHandler = new BodyContentHandler(MAX_TEXT_LENGTH);
-
+        //解析文件
         try (TikaInputStream tikaInputStream = TikaInputStream.get(inputStream)) {
             AutoDetectParser parser = new AutoDetectParser();
             parser.parse(tikaInputStream, contentHandler, metadata, new ParseContext());

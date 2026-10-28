@@ -10,12 +10,12 @@ ai:
             agent-desc: 单一智能体
           module:
             ai-api:
-              base-url: https://dashscope.aliyuncs.com/compatible-mode/v1
-              api-key: ${ALiYun_API:}
+              base-url: https://api.deepseek.com
+              api-key: ${DeepSeek_API:}
               completions-path: /chat/completions
               embeddings-path: /embeddings
             chat-model:
-              model: qwen3.8-27b
+              model: deepseek-flash
               tool-mcp-list:
                 - sse:
                     name: baidu-search
@@ -32,9 +32,9 @@ ai:
 #                  path: /Users/fuzhengwei/coding/gitcode/KnowledgePlanet/ai-agent-scaffold/ai-agent-scaffold-lite/docs/dev-ops/agent/skills
             agents:
               - name: onlyAgent
-                description: 小傅哥学习项目计划
+                description: 单一回答智能体
                 instruction: |
-                  通过百度检索小傅哥编程实战项目，并根据检索内容，针对初学用户给出学习计划。
+                  回答用户问题即可
             runner:
               agent-name: onlyAgent
               plugin-name-list:

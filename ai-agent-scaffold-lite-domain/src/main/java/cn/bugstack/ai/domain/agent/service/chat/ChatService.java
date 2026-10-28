@@ -145,14 +145,20 @@ public class ChatService implements IChatService {
         InMemoryRunner runner = aiAgentRegisterVO.getRunner();
 
         RagRouteDecision decision = ragRouter.decide(message, recentAnswer(runner, aiAgentRegisterVO.getAppName(), userId, sessionId));
-        List<SimilarDocumentChunkVO> sources = decision.retrieve()
+
+        List<SimilarDocumentChunkVO> sources = decision.isRetrieve()
                 ? ragChatContextBuilder.selectSources(documentRagService.searchSimilarChunks(
-                        decision.searchQuery(), null, ragMinSimilarity, List.of(), userId))
+                        decision.getSearchQuery(), null, ragMinSimilarity, List.of(), userId))
                 : List.of();
-        String context = decision.retrieve() ? ragChatContextBuilder.build(message, sources) : "";
+
+        String context = decision.isRetrieve() ? ragChatContextBuilder.build(message, sources) : "";
         Content userMsg = Content.fromParts(Part.fromText(message));
-        Flowable<Event> events = runner.runAsync(userId, sessionId, userMsg,
-                RunConfig.builder().build(), Map.of(RagChatContextBuilder.STATE_KEY, context));
+        Flowable<Event> events = runner.runAsync(
+                userId,
+                sessionId,
+                userMsg,
+                RunConfig.builder().build(),
+                Map.of(RagChatContextBuilder.STATE_KEY, context));
         return new ChatStreamResultVO(events, sources);
     }
 

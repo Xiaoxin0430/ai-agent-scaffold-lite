@@ -18,7 +18,7 @@ import lombok.NoArgsConstructor;
 public class AiAgentRegisterVO {
 
     /**
-     * 智能体名称
+     * 应用名称
      */
     private String appName;
 

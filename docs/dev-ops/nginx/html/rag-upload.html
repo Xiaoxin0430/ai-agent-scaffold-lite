@@ -3,23 +3,28 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>上传文档 · AI 智能体</title>
+    <title>群智工坊 · 上传文档</title>
     <style>
-      :root { color-scheme: dark; --text: rgba(255,255,255,.92); --muted: rgba(255,255,255,.66); }
+      :root { color-scheme: light; --text: #20242b; --muted: #5f6670; --border: #e8eaed; }
       * { box-sizing: border-box; }
-      body { margin: 0; min-height: 100vh; color: var(--text); font-family: ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Arial; background: radial-gradient(900px 550px at 20% 20%,rgba(98,246,199,.20),transparent 60%), radial-gradient(800px 500px at 85% 10%,rgba(90,169,255,.20),transparent 60%),linear-gradient(180deg,#070a12,#0b1022); }
-      .page { max-width: 760px; margin: 0 auto; padding: 32px 20px; }
-      .back { color: #62f6c7; text-decoration: none; font-size: 14px; }
-      .panel { margin-top: 24px; padding: 28px; border: 1px solid rgba(255,255,255,.12); border-radius: 18px; background: linear-gradient(180deg,rgba(255,255,255,.06),rgba(255,255,255,.03)); box-shadow: 0 22px 60px rgba(0,0,0,.45); }
+      body { margin: 0; min-height: 100vh; color: var(--text); font-family: ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Arial; background: #f8f9fb; }
+      .page { max-width: 800px; margin: 0 auto; padding: 36px 20px; }
+      .back { color: #4f5965; text-decoration: none; font-size: 14px; }
+      .back:hover { color: #20242b; text-decoration: underline; }
+      .panel { margin-top: 24px; padding: 32px; border: 1px solid var(--border); border-radius: 14px; background: #ffffff; }
       h1 { margin: 0 0 12px; font-size: 24px; }
       p { color: var(--muted); line-height: 1.7; font-size: 14px; }
       label { display: block; margin: 24px 0 10px; font-size: 14px; }
-      input[type=file] { display: block; width: 100%; padding: 20px; border: 1px dashed rgba(98,246,199,.45); border-radius: 14px; background: rgba(0,0,0,.15); color: var(--text); }
-      button { margin-top: 20px; padding: 12px 20px; border: 0; border-radius: 12px; background: #62f6c7; color: #08231c; font-weight: 700; cursor: pointer; }
+      input[type=file] { display: block; width: 100%; padding: 20px; border: 1px dashed #b8c2cd; border-radius: 10px; background: #f8f9fb; color: var(--text); }
+      input[type=file]:focus-visible { outline: 3px solid #edf1f5; border-color: #8998a9; }
+      input[type=file]::file-selector-button { margin-right: 14px; padding: 8px 12px; border: 1px solid #dfe3e8; border-radius: 7px; background: #ffffff; color: var(--text); cursor: pointer; }
+      button { margin-top: 20px; padding: 12px 20px; border: 0; border-radius: 9px; background: #242a32; color: #ffffff; font-weight: 700; cursor: pointer; }
+      button:hover { filter: brightness(1.12); }
       button:disabled { opacity: .55; cursor: progress; }
       #status { margin-top: 20px; min-height: 24px; white-space: pre-wrap; word-break: break-word; }
-      #status.error { color: #ff7c96; }
-      #result { display: none; margin-top: 18px; padding: 16px; border: 1px solid rgba(98,246,199,.25); border-radius: 12px; background: rgba(98,246,199,.07); font-size: 13px; line-height: 1.8; white-space: pre-wrap; word-break: break-word; }
+      #status.error { color: #c94444; }
+      #result { display: none; margin-top: 18px; padding: 16px; border: 1px solid #dce9df; border-radius: 10px; background: #f5faf6; font-size: 13px; line-height: 1.8; white-space: pre-wrap; word-break: break-word; }
+      @media (max-width: 600px) { .page { padding: 22px 14px; } .panel { padding: 22px 18px; } }
     </style>
   </head>
   <body>
