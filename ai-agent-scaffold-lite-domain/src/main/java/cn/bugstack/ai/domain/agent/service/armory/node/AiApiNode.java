@@ -33,8 +33,8 @@ public class AiApiNode extends AbstractArmorySupport {
         OpenAiApi.Builder builder = OpenAiApi.builder()
                 .baseUrl(aiApiConfig.getBaseUrl())
                 .apiKey(aiApiConfig.getApiKey())
-                .completionsPath(StringUtils.isNotBlank(aiApiConfig.getCompletionsPath()) ? aiApiConfig.getCompletionsPath() : "v1/chat/completions")
-                .embeddingsPath(StringUtils.isNotBlank(aiApiConfig.getEmbeddingsPath()) ? aiApiConfig.getEmbeddingsPath() : "v1/embeddings");
+                .completionsPath(aiApiConfig.getCompletionsPath())
+                .embeddingsPath(aiApiConfig.getEmbeddingsPath());
         // Buffer DeepSeek's response body before Spring AI deserializes it.
         if (aiApiConfig.getBaseUrl().startsWith("https://api.deepseek.com")) {
             builder.restClientBuilder(RestClient.builder().requestFactory(
