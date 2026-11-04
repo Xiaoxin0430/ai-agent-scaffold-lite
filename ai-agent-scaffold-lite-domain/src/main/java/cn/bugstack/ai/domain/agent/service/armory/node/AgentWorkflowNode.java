@@ -9,7 +9,7 @@ import cn.bugstack.ai.domain.agent.service.armory.factory.DefaultArmoryFactory;
 import cn.bugstack.ai.domain.agent.service.armory.node.workflow.LoopAgentNode;
 import cn.bugstack.ai.domain.agent.service.armory.node.workflow.ParallelAgentNode;
 import cn.bugstack.ai.domain.agent.service.armory.node.workflow.SequentialAgentNode;
-import cn.bugstack.wrench.design.framework.tree.StrategyHandler;
+import cn.bugstack.ai.domain.agent.service.armory.tree.StrategyHandler;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
@@ -34,16 +34,16 @@ public class AgentWorkflowNode extends AbstractArmorySupport {
         log.info("Ai Agent 装配操作 - AgentWorkflowNode");
 
         AiAgentConfigTableVO aiAgentConfigTableVO = requestParameter.getAiAgentConfigTableVO();
-        List<AiAgentConfigTableVO.Module.AgentWorkflow> agentWorkflows = aiAgentConfigTableVO.getModule().getAgentWorkflows();
+        List<AiAgentConfigTableVO.Module.AgentWorkFlow> agentWorkflows = aiAgentConfigTableVO.getModule().getAgentWorkFlows();
 
         if (null == agentWorkflows || agentWorkflows.isEmpty() || dynamicContext.getCurrentStepIndex() >= agentWorkflows.size()) {
             // 设置结果值
-            dynamicContext.setCurrentAgentWorkflow(null);
+            dynamicContext.setCurrentAgentWorkFlow(null);
             // 路由下节点
             return router(requestParameter, dynamicContext);
         }
 
-        dynamicContext.setCurrentAgentWorkflow(agentWorkflows.get(dynamicContext.getCurrentStepIndex()));
+        dynamicContext.setCurrentAgentWorkFlow(agentWorkflows.get(dynamicContext.getCurrentStepIndex()));
 
         // 步骤值增加
         dynamicContext.addCurrentStepIndex();
@@ -54,7 +54,7 @@ public class AgentWorkflowNode extends AbstractArmorySupport {
     @Override
     public StrategyHandler<ArmoryCommandEntity, DefaultArmoryFactory.DynamicContext, AiAgentRegisterVO> get(ArmoryCommandEntity requestParameter, DefaultArmoryFactory.DynamicContext dynamicContext) throws Exception {
 
-        AiAgentConfigTableVO.Module.AgentWorkflow currentAgentWorkflow = dynamicContext.getCurrentAgentWorkflow();
+        AiAgentConfigTableVO.Module.AgentWorkFlow currentAgentWorkflow = dynamicContext.getCurrentAgentWorkFlow();
 
         if (null == currentAgentWorkflow){
             return runnerNode;

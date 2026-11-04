@@ -25,17 +25,17 @@ public class AiAgentRegisterVO {
     /**
      * 智能体ID
      */
-    private String agentId;
+    private String workflowId;
 
     /**
      * 智能体名称
      */
-    private String agentName;
+    private String workflowName;
 
     /**
      * 智能体描述
      */
-    private String agentDesc;
+    private String workflowDescription;
 
     /**
      * 智能体执行对象

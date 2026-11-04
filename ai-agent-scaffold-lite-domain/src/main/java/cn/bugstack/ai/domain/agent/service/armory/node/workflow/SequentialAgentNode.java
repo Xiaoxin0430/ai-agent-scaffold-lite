@@ -6,7 +6,7 @@ import cn.bugstack.ai.domain.agent.model.valobj.AiAgentRegisterVO;
 import cn.bugstack.ai.domain.agent.service.armory.AbstractArmorySupport;
 import cn.bugstack.ai.domain.agent.service.armory.factory.DefaultArmoryFactory;
 import cn.bugstack.ai.domain.agent.service.armory.node.RunnerNode;
-import cn.bugstack.wrench.design.framework.tree.StrategyHandler;
+import cn.bugstack.ai.domain.agent.service.armory.tree.StrategyHandler;
 import com.google.adk.agents.BaseAgent;
 import com.google.adk.agents.ParallelAgent;
 import com.google.adk.agents.SequentialAgent;
@@ -27,7 +27,7 @@ public class SequentialAgentNode extends AbstractArmorySupport {
     protected AiAgentRegisterVO doApply(ArmoryCommandEntity requestParameter, DefaultArmoryFactory.DynamicContext dynamicContext) throws Exception {
         log.info("Ai Agent 装配操作 - SequentialAgentNode");
 
-        AiAgentConfigTableVO.Module.AgentWorkflow currentAgentWorkflow = dynamicContext.getCurrentAgentWorkflow();
+        AiAgentConfigTableVO.Module.AgentWorkFlow currentAgentWorkflow = dynamicContext.getCurrentAgentWorkFlow();
 
         List<String> subAgentNames = currentAgentWorkflow.getSubAgents();
         List<BaseAgent> subAgents = dynamicContext.queryAgentList(subAgentNames);

@@ -3,11 +3,10 @@ ai:
     config:
       tables:
         groupBuyActivityAssistant:
-          app-name: groupBuyActivityAssistant
-          agent:
-            agent-id: 100004
-            agent-name: 定格青春活动助手
-            agent-desc: 解答毕业照基础套餐三人团的活动规则，引用上传的活动文档；不查询或操作订单
+          workflow:
+            id: '100004'
+            name: 定格青春活动助手
+            description: 解答毕业照基础套餐三人团的活动规则，引用上传的活动文档；不查询或操作订单
           module:
             ai-api:
               base-url: https://api.deepseek.com

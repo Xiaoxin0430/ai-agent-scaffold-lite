@@ -3,11 +3,10 @@ ai:
     config:
       tables:
         testAgent02:
-          app-name: ResearchAndSynthesisPipeline
-          agent:
-            agent-id: 100002
-            agent-name: 并行研究智能体
-            agent-desc: 并行研究并汇总的智能体管道
+          workflow:
+            id: '100002'
+            name: 并行研究智能体
+            description: 并行研究并汇总的智能体管道
           module:
             ai-api:
               base-url: https://api.deepseek.com
@@ -87,7 +86,7 @@ ai:
                   [Provide a brief (1-2 sentence) concluding statement that connects *only* the findings presented above.]
 
                   Output *only* the structured report following this format. Do not include introductory or concluding phrases outside this structure, and strictly adhere to using only the provided input summary content.
-            agent-workflows:
+            agent-work-flows:
               - type: parallel
                 name: ParallelWebResearchAgent
                 description: Runs multiple research agents in parallel to gather information.

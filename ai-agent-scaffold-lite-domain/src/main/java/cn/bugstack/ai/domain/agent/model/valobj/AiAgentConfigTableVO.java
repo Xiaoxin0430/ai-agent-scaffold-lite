@@ -15,14 +15,9 @@ import java.util.Map;
 public class AiAgentConfigTableVO {
 
     /**
-     * 应用名称
+     * 完整工作流的身份与展示信息
      */
-    private String appName;
-
-    /**
-     * 智能体配置
-     */
-    private Agent agent;
+    private Workflow workflow;
 
     /**
      * 智能体模块
@@ -30,22 +25,22 @@ public class AiAgentConfigTableVO {
     private Module module;
 
     @Data
-    public static class Agent {
+    public static class Workflow {
 
         /**
          * 智能体ID
          */
-        private String agentId;
+        private String id;
 
         /**
          * 智能体名称
          */
-        private String agentName;
+        private String name;
 
         /**
          * 智能体描述
          */
-        private String agentDesc;
+        private String description;
 
     }
 
@@ -58,7 +53,7 @@ public class AiAgentConfigTableVO {
 
         private List<Agent> agents;
 
-        private List<AgentWorkflow> agentWorkflows;
+        private List<AgentWorkFlow> agentWorkFlows;
 
         private Runner runner;
 
@@ -147,7 +142,7 @@ public class AiAgentConfigTableVO {
         }
 
         @Data
-        public static class AgentWorkflow {
+        public static class AgentWorkFlow {
             /**
              * 类型；loop、parallel、sequential
              */

@@ -3,11 +3,10 @@ ai:
     config:
       tables:
         testAgent03:
-          app-name: testAgent03
-          agent:
-            agent-id: 100003
-            agent-name: 单一智能体
-            agent-desc: 单一智能体
+          workflow:
+            id: '100003'
+            name: 单一智能体
+            description: 单一智能体
           module:
             ai-api:
               base-url: https://api.deepseek.com

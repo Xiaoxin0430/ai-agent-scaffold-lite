@@ -16,7 +16,7 @@ import java.util.List;
  */
 public interface IChatService {
 
-    List<AiAgentConfigTableVO.Agent> queryAiAgentConfigList();
+    List<AiAgentConfigTableVO.Workflow> queryAiAgentConfigList();
 
     String createSession(String agentId, String userId);
 

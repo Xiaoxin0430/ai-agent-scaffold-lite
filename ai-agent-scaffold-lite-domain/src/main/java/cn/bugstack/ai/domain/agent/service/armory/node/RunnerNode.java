@@ -4,10 +4,11 @@ import cn.bugstack.ai.domain.agent.model.entity.ArmoryCommandEntity;
 import cn.bugstack.ai.domain.agent.model.valobj.AiAgentConfigTableVO;
 import cn.bugstack.ai.domain.agent.model.valobj.AiAgentRegisterVO;
 import cn.bugstack.ai.domain.agent.service.armory.AbstractArmorySupport;
+import cn.bugstack.ai.domain.agent.service.IWorkflowRuntimeRegistry;
 import cn.bugstack.ai.domain.agent.service.armory.factory.DefaultArmoryFactory;
 import cn.bugstack.ai.types.enums.ResponseCode;
 import cn.bugstack.ai.types.exception.AppException;
-import cn.bugstack.wrench.design.framework.tree.StrategyHandler;
+import cn.bugstack.ai.domain.agent.service.armory.tree.StrategyHandler;
 import com.google.adk.agents.BaseAgent;
 import com.google.adk.agents.SequentialAgent;
 import com.google.adk.plugins.BasePlugin;
@@ -20,6 +21,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import javax.annotation.Resource;
 
 /**
  * 执行节点
@@ -31,28 +33,29 @@ import java.util.List;
 @Service
 public class RunnerNode extends AbstractArmorySupport {
 
+    @Resource
+    private IWorkflowRuntimeRegistry workflowRuntimeRegistry;
+
     protected AiAgentRegisterVO doApply(ArmoryCommandEntity requestParameter, DefaultArmoryFactory.DynamicContext dynamicContext) throws Exception {
         log.info("Ai Agent 装配操作 - RunnerNode");
 
         AiAgentConfigTableVO aiAgentConfigTableVO = requestParameter.getAiAgentConfigTableVO();
-        String appName = aiAgentConfigTableVO.getAppName();
-        AiAgentConfigTableVO.Agent agent = aiAgentConfigTableVO.getAgent();
-        String agentId = agent.getAgentId();
-        String agentName = agent.getAgentName();
-        String agentDesc = agent.getAgentDesc();
+        AiAgentConfigTableVO.Workflow workflow = aiAgentConfigTableVO.getWorkflow();
+        String workflowId = workflow.getId();
+        String appName = workflowId;
 
         InMemoryRunner runner = getRunner(dynamicContext, aiAgentConfigTableVO, appName);
 
         AiAgentRegisterVO aiAgentRegisterVO = AiAgentRegisterVO.builder()
                 .appName(appName)
-                .agentId(agentId)
-                .agentName(agentName)
-                .agentDesc(agentDesc)
+                .workflowId(workflowId)
+                .workflowName(workflow.getName())
+                .workflowDescription(workflow.getDescription())
                 .runner(runner)
                 .build();
 
         // 注册到 Spring 容器
-        registerBean(agentId, AiAgentRegisterVO.class, aiAgentRegisterVO);
+        workflowRuntimeRegistry.registerIfAbsent(workflowId, aiAgentRegisterVO);
 
         return aiAgentRegisterVO;
     }

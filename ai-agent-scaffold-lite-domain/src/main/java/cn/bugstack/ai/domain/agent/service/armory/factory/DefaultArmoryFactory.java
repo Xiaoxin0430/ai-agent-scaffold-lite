@@ -4,7 +4,7 @@ import cn.bugstack.ai.domain.agent.model.entity.ArmoryCommandEntity;
 import cn.bugstack.ai.domain.agent.model.valobj.AiAgentConfigTableVO;
 import cn.bugstack.ai.domain.agent.model.valobj.AiAgentRegisterVO;
 import cn.bugstack.ai.domain.agent.service.armory.node.RootNode;
-import cn.bugstack.wrench.design.framework.tree.StrategyHandler;
+import cn.bugstack.ai.domain.agent.service.armory.tree.StrategyHandler;
 import com.google.adk.agents.BaseAgent;
 import com.google.adk.agents.SequentialAgent;
 import lombok.AllArgsConstructor;
@@ -69,7 +69,7 @@ public class DefaultArmoryFactory {
 
         private AtomicInteger currentStepIndex = new AtomicInteger(0);
 
-        private AiAgentConfigTableVO.Module.AgentWorkflow currentAgentWorkflow;
+        private AiAgentConfigTableVO.Module.AgentWorkFlow currentAgentWorkFlow;
 
         private Map<String, Object> dataObjects = new HashMap<>();
 

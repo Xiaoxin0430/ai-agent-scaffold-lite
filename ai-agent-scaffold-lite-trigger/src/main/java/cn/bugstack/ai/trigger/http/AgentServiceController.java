@@ -47,13 +47,13 @@ public class AgentServiceController implements IAgentService {
         try {
             log.info("查询智能体配置列表");
 
-            List<AiAgentConfigTableVO.Agent> agentConfigs = chatService.queryAiAgentConfigList();
+            List<AiAgentConfigTableVO.Workflow> agentConfigs = chatService.queryAiAgentConfigList();
 
             List<AiAgentConfigResponseDTO> responseDTOS = agentConfigs.stream().map(agentConfig -> {
                 AiAgentConfigResponseDTO responseDTO = new AiAgentConfigResponseDTO();
-                responseDTO.setAgentId(agentConfig.getAgentId());
-                responseDTO.setAgentName(agentConfig.getAgentName());
-                responseDTO.setAgentDesc(agentConfig.getAgentDesc());
+                responseDTO.setAgentId(agentConfig.getId());
+                responseDTO.setAgentName(agentConfig.getName());
+                responseDTO.setAgentDesc(agentConfig.getDescription());
                 return responseDTO;
             }).collect(Collectors.toList());
 

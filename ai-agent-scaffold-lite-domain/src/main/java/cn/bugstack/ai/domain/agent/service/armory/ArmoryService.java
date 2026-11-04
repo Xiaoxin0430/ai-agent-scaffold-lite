@@ -5,7 +5,7 @@ import cn.bugstack.ai.domain.agent.model.valobj.AiAgentConfigTableVO;
 import cn.bugstack.ai.domain.agent.model.valobj.AiAgentRegisterVO;
 import cn.bugstack.ai.domain.agent.service.IArmoryService;
 import cn.bugstack.ai.domain.agent.service.armory.factory.DefaultArmoryFactory;
-import cn.bugstack.wrench.design.framework.tree.StrategyHandler;
+import cn.bugstack.ai.domain.agent.service.armory.tree.StrategyHandler;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 

@@ -5,7 +5,6 @@ import cn.bugstack.ai.domain.agent.model.valobj.AiAgentConfigTableVO;
 import cn.bugstack.ai.domain.agent.model.valobj.AiAgentRegisterVO;
 import cn.bugstack.ai.domain.agent.model.valobj.ChatStreamResultVO;
 import cn.bugstack.ai.domain.agent.model.valobj.RagRouteDecision;
-import cn.bugstack.ai.domain.agent.model.valobj.properties.AiAgentAutoConfigProperties;
 import cn.bugstack.ai.domain.agent.service.IChatService;
 import cn.bugstack.ai.domain.agent.service.armory.factory.DefaultArmoryFactory;
 import cn.bugstack.ai.domain.agent.service.router.IRagRouter;
@@ -23,6 +22,7 @@ import io.reactivex.rxjava3.core.Flowable;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -39,7 +39,7 @@ public class ChatService implements IChatService {
     private DefaultArmoryFactory defaultArmoryFactory;
 
     @Resource
-    private AiAgentAutoConfigProperties aiAgentAutoConfigProperties;
+    private ApplicationContext applicationContext;
 
     @Resource
     private IRagRouter ragRouter;
@@ -53,19 +53,20 @@ public class ChatService implements IChatService {
     @Value("${rag.chat.min-similarity:0.35}")
     private double ragMinSimilarity;
 
-    private final Map<String, String> userSessions = new ConcurrentHashMap<>();
+    private final Map<SessionKey, String> userSessions = new ConcurrentHashMap<>();
+
+    private record SessionKey(String agentId, String userId) { }
 
     @Override
-    public List<AiAgentConfigTableVO.Agent> queryAiAgentConfigList() {
-        Map<String, AiAgentConfigTableVO> tables = aiAgentAutoConfigProperties.getTables();
-
-        List<AiAgentConfigTableVO.Agent> agentList = new ArrayList<>();
-        if (null != tables) {
-            for (AiAgentConfigTableVO vo : tables.values()) {
-                if (null != vo.getAgent()) {
-                    agentList.add(vo.getAgent());
-                }
-            }
+    public List<AiAgentConfigTableVO.Workflow> queryAiAgentConfigList() {
+        List<AiAgentConfigTableVO.Workflow> agentList = new ArrayList<>();
+        Map<String, AiAgentRegisterVO> registered = applicationContext.getBeansOfType(AiAgentRegisterVO.class);
+        for (AiAgentRegisterVO agent : registered.values()) {
+            AiAgentConfigTableVO.Workflow workflow = new AiAgentConfigTableVO.Workflow();
+            workflow.setId(agent.getWorkflowId());
+            workflow.setName(agent.getWorkflowName());
+            workflow.setDescription(agent.getWorkflowDescription());
+            agentList.add(workflow);
         }
 
         return agentList;
@@ -82,8 +83,8 @@ public class ChatService implements IChatService {
         String appName = aiAgentRegisterVO.getAppName();
         InMemoryRunner runner = aiAgentRegisterVO.getRunner();
 
-        return userSessions.computeIfAbsent(userId, uid -> {
-            Session session = runner.sessionService().createSession(appName, uid)
+        return userSessions.computeIfAbsent(new SessionKey(agentId, userId), key -> {
+            Session session = runner.sessionService().createSession(appName, key.userId())
                     .blockingGet();
             return session.id();
         });

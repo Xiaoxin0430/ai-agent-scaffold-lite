@@ -27,6 +27,9 @@
 /nbproject/private/
 /nbbuild/
 /dist/
+/ai-agent-scaffold-lite-web/node_modules/
+/ai-agent-scaffold-lite-web/tsconfig.tsbuildinfo
+/ai-agent-scaffold-lite-web/.playwright-cli/
 /nbdist/
 /.nb-gradle/
 build/
