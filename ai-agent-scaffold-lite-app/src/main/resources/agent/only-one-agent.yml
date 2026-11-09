@@ -5,8 +5,8 @@ ai:
         testAgent03:
           workflow:
             id: '100003'
-            name: 单一智能体
-            description: 单一智能体
+            name: 单一智能体调试
+            description: 用于验证基础装配和对话接口
           module:
             ai-api:
               base-url: https://api.deepseek.com
@@ -15,20 +15,6 @@ ai:
               embeddings-path: /embeddings
             chat-model:
               model: deepseek-flash
-              tool-mcp-list:
-                - sse:
-                    name: baidu-search
-                    base-uri: http://appbuilder.baidu.com/v2/ai_search/mcp/
-                    sse-endpoint: sse?api_key=${BAIDU_MCP_API_KEY:}
-                    request-timeout: 500000
-                - local:
-                    name: myToolCallbackProvider
-              tool-skills-list:
-                - type: resource
-                  path: agent/skills
-
-#                - type: directory
-#                  path: /Users/fuzhengwei/coding/gitcode/KnowledgePlanet/ai-agent-scaffold/ai-agent-scaffold-lite/docs/dev-ops/agent/skills
             agents:
               - name: onlyAgent
                 description: 单一回答智能体
@@ -36,6 +22,3 @@ ai:
                   回答用户问题即可
             runner:
               agent-name: onlyAgent
-              plugin-name-list:
-                - myTestPlugin
-                - myLogPlugin

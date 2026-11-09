@@ -4,7 +4,6 @@ import cn.bugstack.ai.domain.rag.model.valobj.CleanedDocumentVO;
 import cn.bugstack.ai.domain.rag.model.valobj.ChunkingResultVO;
 import cn.bugstack.ai.domain.rag.model.valobj.DocumentIndexResultVO;
 import cn.bugstack.ai.domain.rag.model.valobj.EmbeddingResultVO;
-import cn.bugstack.ai.domain.rag.model.valobj.RagAnswerVO;
 import cn.bugstack.ai.domain.rag.model.valobj.SimilarDocumentChunkVO;
 
 import java.io.InputStream;
@@ -82,19 +81,5 @@ public interface IDocumentRagService {
     List<SimilarDocumentChunkVO> searchSimilarChunks(String query, Integer topK,
                                                       Double minSimilarity, List<String> documentIds,
                                                       String ownerUserId);
-
-    /**
-     * 检索与问题相关的 Chunk，将检索结果拼入提示词并调用大模型生成答案。
-     *
-     * @param query 用户问题
-     * @param topK 最大检索数，为空时使用默认值
-     * @param minSimilarity 最低相似度，为空时使用默认值
-     * @param documentIds 可选文档范围
-     * @return 答案及实际使用的检索来源
-     */
-    RagAnswerVO answerQuestion(String query,
-                               Integer topK,
-                               Double minSimilarity,
-                               List<String> documentIds);
 
 }

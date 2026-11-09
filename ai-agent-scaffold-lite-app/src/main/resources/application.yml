@@ -30,10 +30,6 @@ spring:
 
 # RAG 文档切分配置
 rag:
-  router:
-    enabled: ${RAG_ROUTER_ENABLED:true}
-  chat:
-    min-similarity: ${RAG_CHAT_MIN_SIMILARITY:0.35}
   chunking:
     target-tokens: 600
     max-tokens: 800
@@ -57,4 +53,17 @@ rag:
     api-key: ${DeepSeek_API:}
     completions-path: ${AI_CHAT_COMPLETIONS_PATH:/chat/completions}
     model: ${AI_CHAT_MODEL:deepseek-flash}
-    max-context-characters: ${RAG_MAX_CONTEXT_CHARACTERS:12000}
+
+# 动态 Agent 团队 V1 运行边界。
+ai:
+  agent:
+    dynamic-team:
+      enabled: ${DYNAMIC_TEAM_ENABLED:True}
+      max-workers: ${DYNAMIC_TEAM_MAX_WORKERS:5}
+      max-tasks: ${DYNAMIC_TEAM_MAX_TASKS:20}
+      max-concurrent-workers: ${DYNAMIC_TEAM_MAX_CONCURRENT_WORKERS:3}
+      max-replans: ${DYNAMIC_TEAM_MAX_REPLANS:2}
+      step-timeout-seconds: ${DYNAMIC_TEAM_STEP_TIMEOUT_SECONDS:600}
+      run-timeout-seconds: ${DYNAMIC_TEAM_RUN_TIMEOUT_SECONDS:1200}
+      max-model-calls: ${DYNAMIC_TEAM_MAX_MODEL_CALLS:25}
+      max-user-input-characters: ${DYNAMIC_TEAM_MAX_USER_INPUT_CHARACTERS:20000}

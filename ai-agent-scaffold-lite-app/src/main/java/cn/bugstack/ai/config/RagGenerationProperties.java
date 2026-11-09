@@ -4,7 +4,7 @@ import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
 /**
- * RAG 大模型答案生成配置。
+ * 固定对话模型配置。
  *
  * @author xiaoxin
  */
@@ -16,6 +16,5 @@ public class RagGenerationProperties {
     private String apiKey = "";
     private String completionsPath = "/chat/completions";
     private String model = "qwen3.8-27b";
-    private int maxContextCharacters = 12000;
 
 }

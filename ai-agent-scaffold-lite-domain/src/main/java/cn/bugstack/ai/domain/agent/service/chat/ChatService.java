@@ -3,17 +3,11 @@ package cn.bugstack.ai.domain.agent.service.chat;
 import cn.bugstack.ai.domain.agent.model.entity.ChatCommandEntity;
 import cn.bugstack.ai.domain.agent.model.valobj.AiAgentConfigTableVO;
 import cn.bugstack.ai.domain.agent.model.valobj.AiAgentRegisterVO;
-import cn.bugstack.ai.domain.agent.model.valobj.ChatStreamResultVO;
-import cn.bugstack.ai.domain.agent.model.valobj.RagRouteDecision;
 import cn.bugstack.ai.domain.agent.service.IChatService;
 import cn.bugstack.ai.domain.agent.service.armory.factory.DefaultArmoryFactory;
-import cn.bugstack.ai.domain.agent.service.router.IRagRouter;
-import cn.bugstack.ai.domain.rag.model.valobj.SimilarDocumentChunkVO;
-import cn.bugstack.ai.domain.rag.service.IDocumentRagService;
 import cn.bugstack.ai.types.enums.ResponseCode;
 import cn.bugstack.ai.types.exception.AppException;
 import com.google.adk.events.Event;
-import com.google.adk.agents.RunConfig;
 import com.google.adk.runner.InMemoryRunner;
 import com.google.adk.sessions.Session;
 import com.google.genai.types.Content;
@@ -21,14 +15,12 @@ import com.google.genai.types.Part;
 import io.reactivex.rxjava3.core.Flowable;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 
 @Slf4j
@@ -40,18 +32,6 @@ public class ChatService implements IChatService {
 
     @Resource
     private ApplicationContext applicationContext;
-
-    @Resource
-    private IRagRouter ragRouter;
-
-    @Resource
-    private IDocumentRagService documentRagService;
-
-    @Resource
-    private RagChatContextBuilder ragChatContextBuilder;
-
-    @Value("${rag.chat.min-similarity:0.35}")
-    private double ragMinSimilarity;
 
     private final Map<SessionKey, String> userSessions = new ConcurrentHashMap<>();
 
@@ -113,7 +93,7 @@ public class ChatService implements IChatService {
             throw new AppException(ResponseCode.E0001.getCode());
         }
 
-        Flowable<Event> events = prepareMessageStream(agentId, userId, sessionId, message).events();
+        Flowable<Event> events = runMessage(agentId, userId, sessionId, message);
 
         List<String> outputs = new ArrayList<>();
         events.filter(event -> event.turnComplete().orElse(false)
@@ -127,61 +107,15 @@ public class ChatService implements IChatService {
         return outputs;
     }
 
-    @Override
-    public Flowable<Event> handleMessageStream(String agentId, String userId, String sessionId, String message) {
-        return prepareMessageStream(agentId, userId, sessionId, message).events();
-    }
-
-    @Override
-    public ChatStreamResultVO prepareMessageStream(String agentId, String userId, String sessionId, String message) {
+    private Flowable<Event> runMessage(String agentId, String userId, String sessionId, String message) {
         if (userId == null || userId.isBlank() || sessionId == null || sessionId.isBlank()) {
             throw new IllegalArgumentException("userId and sessionId cannot be blank");
         }
-        AiAgentRegisterVO aiAgentRegisterVO = defaultArmoryFactory.getAiAgentRegisterVO(agentId);
-
-        if (null == aiAgentRegisterVO) {
+        AiAgentRegisterVO registered = defaultArmoryFactory.getAiAgentRegisterVO(agentId);
+        if (registered == null) {
             throw new AppException(ResponseCode.E0001.getCode());
         }
-
-        InMemoryRunner runner = aiAgentRegisterVO.getRunner();
-
-        RagRouteDecision decision = ragRouter.decide(message, recentAnswer(runner, aiAgentRegisterVO.getAppName(), userId, sessionId));
-
-        List<SimilarDocumentChunkVO> sources = decision.isRetrieve()
-                ? ragChatContextBuilder.selectSources(documentRagService.searchSimilarChunks(
-                        decision.getSearchQuery(), null, ragMinSimilarity, List.of(), userId))
-                : List.of();
-
-        String context = decision.isRetrieve() ? ragChatContextBuilder.build(message, sources) : "";
-        Content userMsg = Content.fromParts(Part.fromText(message));
-        Flowable<Event> events = runner.runAsync(
-                userId,
-                sessionId,
-                userMsg,
-                RunConfig.builder().build(),
-                Map.of(RagChatContextBuilder.STATE_KEY, context));
-        return new ChatStreamResultVO(events, sources);
-    }
-
-    private String recentAnswer(InMemoryRunner runner, String appName, String userId, String sessionId) {
-        if (sessionId == null || sessionId.isBlank()) return "";
-        try {
-            Session session = runner.sessionService()
-                    .getSession(appName, userId, sessionId, Optional.empty()).blockingGet();
-            if (session == null) return "";
-            List<Event> events = session.events();
-            for (int i = events.size() - 1; i >= 0; i--) {
-                Event event = events.get(i);
-                if (!event.turnComplete().orElse(false) || !event.branch().orElse("").isEmpty()) continue;
-                String answer = event.content().map(content -> content.parts().orElse(List.of()).stream()
-                        .map(Part::text).flatMap(Optional::stream)
-                        .reduce("", String::concat)).orElse("");
-                if (!answer.isBlank()) return answer.substring(0, Math.min(answer.length(), 600));
-            }
-        } catch (Exception e) {
-            log.debug("无法读取上轮回答用于 RAG 路由: {}", e.getMessage());
-        }
-        return "";
+        return registered.getRunner().runAsync(userId, sessionId, Content.fromParts(Part.fromText(message)));
     }
 
     @Override

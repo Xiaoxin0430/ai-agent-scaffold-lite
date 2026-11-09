@@ -52,5 +52,9 @@ build/
 /ai-agent-scaffold-lite-domain/target/
 **/target/
 /RAG开发文档.md
+/AGENTS.md
+/docs/对话能力优化.md
+/毕业照基础套餐活动说明.md
+/connect-server.cmd
 /hs_err_pid*.log
 /replay_pid*.log

@@ -1,0 +1,60 @@
+[
+  {
+    "id": "TC-001",
+    "name": "单 Worker 简单任务",
+    "userGoal": "写一篇关于人工智能发展历史的 500 字摘要",
+    "acceptanceRequirements": [
+      "内容包含图灵测试、深度学习、GPT 等关键词",
+      "字数 500±50"
+    ],
+    "expectedWorkers": 1,
+    "expectedTasks": 1,
+    "expectedDuration": "<60s"
+  },
+  {
+    "id": "TC-002",
+    "name": "多 Worker 并行任务",
+    "userGoal": "分别总结机器学习、深度学习、强化学习的核心概念",
+    "acceptanceRequirements": [
+      "三个领域各有独立总结",
+      "总字数 800±100"
+    ],
+    "expectedWorkers": 3,
+    "expectedTasks": 3,
+    "expectedParallelism": true
+  },
+  {
+    "id": "TC-003",
+    "name": "串行依赖任务",
+    "userGoal": "先收集 2024 年 AI 领域的 5 个重要论文标题，然后为每篇论文写一句话摘要",
+    "acceptanceRequirements": [
+      "包含 5 个论文标题及对应摘要",
+      "总字数 600±100"
+    ],
+    "expectedWorkers": 2,
+    "expectedTasks": 2,
+    "expectedDependency": true
+  },
+  {
+    "id": "TC-004",
+    "name": "失败场景：超时",
+    "userGoal": "写一篇 10000 字的详细技术报告",
+    "acceptanceRequirements": [
+      "内容完整，包含 10 个章节"
+    ],
+    "expectedWorkers": 1,
+    "expectedTasks": 1,
+    "expectedTimeout": true
+  },
+  {
+    "id": "TC-005",
+    "name": "失败场景：规划错误",
+    "userGoal": "用量子计算解决 NP 完全问题",
+    "acceptanceRequirements": [
+      "给出可行的解决方案"
+    ],
+    "expectedWorkers": 1,
+    "expectedTasks": 1,
+    "expectedPlanningFailure": true
+  }
+]

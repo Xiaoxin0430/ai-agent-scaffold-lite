@@ -3,9 +3,9 @@ import react from '@vitejs/plugin-react';
 
 export default defineConfig({
   plugins: [react()],
-  base: '/canvas/',
+  base: '/team/',
   build: {
-    outDir: '../docs/dev-ops/nginx/html/canvas',
+    outDir: '../docs/dev-ops/nginx/html/team',
     emptyOutDir: true,
   },
 });

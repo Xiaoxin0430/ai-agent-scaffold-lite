@@ -30,17 +30,6 @@ public class SpringWorkflowRuntimeRegistry implements IWorkflowRuntimeRegistry {
         beanFactory.registerBeanDefinition(workflowId, definition);
     }
 
-    @Override
-    public synchronized void unregisterIfSame(String workflowId, AiAgentRegisterVO registered) {
-        DefaultListableBeanFactory beanFactory = beanFactory();
-        if (registered == null || !beanFactory.containsBeanDefinition(workflowId)) {
-            return;
-        }
-        if (applicationContext.getBean(workflowId) == registered) {
-            beanFactory.removeBeanDefinition(workflowId);
-        }
-    }
-
     private DefaultListableBeanFactory beanFactory() {
         return (DefaultListableBeanFactory) applicationContext.getAutowireCapableBeanFactory();
     }

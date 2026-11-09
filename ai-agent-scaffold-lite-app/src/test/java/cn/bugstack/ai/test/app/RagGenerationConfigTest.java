@@ -2,10 +2,11 @@ package cn.bugstack.ai.test.app;
 
 import cn.bugstack.ai.config.RagGenerationConfig;
 import cn.bugstack.ai.config.RagGenerationProperties;
-import cn.bugstack.ai.domain.rag.model.valobj.RagAnswerConfigVO;
 import org.junit.Assert;
 import org.junit.Test;
 import org.springframework.ai.chat.model.ChatModel;
+import org.springframework.ai.openai.OpenAiChatModel;
+import org.springframework.ai.openai.OpenAiChatOptions;
 import org.springframework.ai.openai.api.OpenAiApi;
 
 /**
@@ -20,17 +21,29 @@ public class RagGenerationConfigTest {
         RagGenerationProperties properties = new RagGenerationProperties();
         properties.setApiKey("test-key");
         properties.setModel("test-model");
-        properties.setMaxContextCharacters(8000);
         RagGenerationConfig config = new RagGenerationConfig();
 
-        RagAnswerConfigVO answerConfig = config.ragAnswerConfig(properties);
         OpenAiApi openAiApi = config.ragChatOpenAiApi(properties);
         ChatModel chatModel = config.ragChatModel(openAiApi, properties);
 
-        Assert.assertEquals(Integer.valueOf(8000),
-                answerConfig.getMaxContextCharacters());
         Assert.assertNotNull(openAiApi);
         Assert.assertNotNull(chatModel);
+    }
+
+    @Test
+    public void control_model_disables_default_thinking_only_for_deepseek() {
+        RagGenerationProperties properties = new RagGenerationProperties();
+        properties.setBaseUrl("https://api.deepseek.com");
+        properties.setApiKey("test-key");
+        properties.setModel("deepseek-flash");
+        RagGenerationConfig config = new RagGenerationConfig();
+        OpenAiApi api = config.ragChatOpenAiApi(properties);
+
+        OpenAiChatModel control = (OpenAiChatModel) config.controlChatModel(api, properties);
+        OpenAiChatModel worker = (OpenAiChatModel) config.ragChatModel(api, properties);
+
+        Assert.assertEquals("none", ((OpenAiChatOptions) control.getDefaultOptions()).getReasoningEffort());
+        Assert.assertNull(((OpenAiChatOptions) worker.getDefaultOptions()).getReasoningEffort());
     }
 
 }

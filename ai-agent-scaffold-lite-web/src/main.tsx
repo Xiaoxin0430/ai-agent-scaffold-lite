@@ -1,8 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
-import App from './App';
-import '@xyflow/react/dist/style.css';
-import './style.css';
+import DynamicTeamConsole from './DynamicTeamConsole';
 
 function hasDemoLogin(): boolean {
   const value = document.cookie.split('; ').find((item) => item.startsWith('ai_agent_login='));
@@ -20,7 +18,7 @@ if (!import.meta.env.DEV && !hasDemoLogin()) {
 } else {
   ReactDOM.createRoot(document.getElementById('root')!).render(
     <React.StrictMode>
-      <App />
+      <DynamicTeamConsole />
     </React.StrictMode>,
   );
 }

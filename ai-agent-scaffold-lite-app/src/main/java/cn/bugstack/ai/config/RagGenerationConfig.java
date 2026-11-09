@@ -1,6 +1,5 @@
 package cn.bugstack.ai.config;
 
-import cn.bugstack.ai.domain.rag.model.valobj.RagAnswerConfigVO;
 import org.springframework.ai.chat.model.ChatModel;
 import org.springframework.ai.openai.OpenAiChatModel;
 import org.springframework.ai.openai.OpenAiChatOptions;
@@ -9,9 +8,13 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Primary;
+import org.springframework.http.client.BufferingClientHttpRequestFactory;
+import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
+import org.springframework.web.client.RestClient;
 
 /**
- * RAG 大模型答案生成装配。
+ * 动态团队控制角色与 Worker 共用的固定模型装配。
  *
  * @author xiaoxin
  */
@@ -19,27 +22,24 @@ import org.springframework.context.annotation.Configuration;
 @EnableConfigurationProperties(RagGenerationProperties.class)
 public class RagGenerationConfig {
 
-    @Bean
-    public RagAnswerConfigVO ragAnswerConfig(RagGenerationProperties properties) {
-        if (properties.getMaxContextCharacters() <= 0) {
-            throw new IllegalArgumentException(
-                    "rag.generation.max-context-characters must be positive");
-        }
-        return RagAnswerConfigVO.builder()
-                .maxContextCharacters(properties.getMaxContextCharacters())
-                .build();
-    }
-
     @Bean("ragChatOpenAiApi")
     public OpenAiApi ragChatOpenAiApi(RagGenerationProperties properties) {
-        return OpenAiApi.builder()
+        OpenAiApi.Builder builder = OpenAiApi.builder()
                 .baseUrl(properties.getBaseUrl())
                 .apiKey(properties.getApiKey())
-                .completionsPath(properties.getCompletionsPath())
-                .build();
+                .completionsPath(properties.getCompletionsPath());
+
+        // 与 Armory 的 DeepSeek 装配保持一致，在反序列化前缓冲 HTTP 响应体。
+        if (properties.getBaseUrl().startsWith("https://api.deepseek.com")) {
+            builder.restClientBuilder(RestClient.builder().requestFactory(
+                    new BufferingClientHttpRequestFactory(
+                            new HttpComponentsClientHttpRequestFactory())));
+        }
+        return builder.build();
     }
 
     @Bean("ragChatModel")
+    @Primary
     public ChatModel ragChatModel(
             @Qualifier("ragChatOpenAiApi") OpenAiApi openAiApi,
             RagGenerationProperties properties) {
@@ -48,6 +48,22 @@ public class RagGenerationConfig {
                 .defaultOptions(OpenAiChatOptions.builder()
                         .model(properties.getModel())
                         .build())
+                .build();
+    }
+
+    @Bean("controlChatModel")
+    public ChatModel controlChatModel(
+            @Qualifier("ragChatOpenAiApi") OpenAiApi openAiApi,
+            RagGenerationProperties properties) {
+        OpenAiChatOptions.Builder options = OpenAiChatOptions.builder()
+                .model(properties.getModel());
+        // DeepSeek 默认先思考；控制角色只需要可解析的最终文本。
+        if (properties.getBaseUrl().startsWith("https://api.deepseek.com")) {
+            options.reasoningEffort("none");
+        }
+        return OpenAiChatModel.builder()
+                .openAiApi(openAiApi)
+                .defaultOptions(options.build())
                 .build();
     }
 

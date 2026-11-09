@@ -1,25 +1,12 @@
 server:
   port: 8091
 
-# 线程池配置
-thread:
-  pool:
-    executor:
-      config:
-        core-pool-size: 20
-        max-pool-size: 50
-        keep-alive-time: 5000
-        block-queue-size: 5000
-        policy: CallerRunsPolicy
-
 spring:
   config:
     import:
 #      - classpath:agent/test-agent-02.yml
 #      - classpath:agent/test-agent.yml
       - classpath:agent/only-one-agent.yml
-      - classpath:agent/parallel_research_app.yml
-      - classpath:agent/group-buy-activity-assistant.yml
 
 # MyBatis 配置【如需使用记得打开】
 #mybatis:

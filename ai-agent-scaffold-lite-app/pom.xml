@@ -165,7 +165,8 @@
                     <include>*.html</include>
                     <include>js/**</include>
                     <include>images/**</include>
-                    <include>canvas/**</include>
+                    <include>canvas/index.html</include>
+                    <include>team/**</include>
                 </includes>
             </resource>
             <resource>
