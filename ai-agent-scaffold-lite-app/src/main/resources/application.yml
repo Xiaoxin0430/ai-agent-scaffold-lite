@@ -67,3 +67,6 @@ ai:
       run-timeout-seconds: ${DYNAMIC_TEAM_RUN_TIMEOUT_SECONDS:1200}
       max-model-calls: ${DYNAMIC_TEAM_MAX_MODEL_CALLS:25}
       max-user-input-characters: ${DYNAMIC_TEAM_MAX_USER_INPUT_CHARACTERS:20000}
+      # rag_search 可检索的文档 ID；入库时使用相同 documentId。
+      rag-document-ids:
+        - ${DYNAMIC_TEAM_RAG_DOCUMENT_ID:project-architecture}

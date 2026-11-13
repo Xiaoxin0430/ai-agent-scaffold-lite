@@ -5,6 +5,11 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+import java.util.ArrayList;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Set;
+
 /**
  * 动态团队运行规则装配。
  */
@@ -27,6 +32,7 @@ public class DynamicTeamConfig {
                 .runTimeoutSeconds(properties.getRunTimeoutSeconds())
                 .maxModelCalls(properties.getMaxModelCalls())
                 .maxUserInputCharacters(properties.getMaxUserInputCharacters())
+                .ragDocumentIds(normalizeDocumentIds(properties.getRagDocumentIds()))
                 .build();
     }
 
@@ -46,6 +52,22 @@ public class DynamicTeamConfig {
             throw new IllegalArgumentException(
                     "ai.agent.dynamic-team.max-concurrent-workers cannot exceed max-workers");
         }
+        normalizeDocumentIds(properties.getRagDocumentIds());
+    }
+
+    private List<String> normalizeDocumentIds(List<String> documentIds) {
+        if (documentIds == null || documentIds.isEmpty()) {
+            return List.of();
+        }
+        Set<String> unique = new LinkedHashSet<>();
+        for (String documentId : documentIds) {
+            if (documentId == null || documentId.isBlank()) {
+                throw new IllegalArgumentException(
+                        "ai.agent.dynamic-team.rag-document-ids cannot contain blank values");
+            }
+            unique.add(documentId.trim());
+        }
+        return List.copyOf(new ArrayList<>(unique));
     }
 
     private void requirePositive(String propertyName, int value) {

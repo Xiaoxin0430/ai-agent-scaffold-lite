@@ -68,6 +68,7 @@ public class DynamicTeamTaskSchedulerService implements IDynamicTeamTaskSchedule
                     String taskId = ready.remove();
                     DynamicTeamTaskRuntimeEntity runtime = tasks.get(taskId);
                     if (runtime.getStatus() != READY) continue;
+                    //若workerid已有任务在跑，就放入队尾，继续寻找其他可运行任务
                     String workerId = runtime.getTask().getWorkerId();
                     if (busyWorkers.contains(workerId)) {
                         ready.add(taskId);

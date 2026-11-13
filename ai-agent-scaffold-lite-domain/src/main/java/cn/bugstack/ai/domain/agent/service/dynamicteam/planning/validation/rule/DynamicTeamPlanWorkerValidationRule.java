@@ -1,11 +1,15 @@
-package cn.bugstack.ai.domain.agent.service.dynamicteam.planning.validation;
+package cn.bugstack.ai.domain.agent.service.dynamicteam.planning.validation.rule;
+
+import cn.bugstack.ai.domain.agent.service.dynamicteam.planning.validation.DynamicTeamPlanValidationContext;
 
 import cn.bugstack.ai.domain.agent.model.dynamicteam.plan.DynamicTeamPlanValidationCommandEntity;
 import cn.bugstack.ai.domain.agent.model.dynamicteam.plan.DynamicTeamPlanDraftVO;
 import cn.bugstack.ai.domain.agent.model.dynamicteam.plan.DynamicTeamPlanValidationIssueVO;
 import org.springframework.stereotype.Component;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.regex.Pattern;
 
 /**
@@ -19,6 +23,8 @@ public class DynamicTeamPlanWorkerValidationRule
     private static final int MAX_ROLE_NAME_CHARACTERS = 100;
     private static final int MAX_RESPONSIBILITY_CHARACTERS = 1000;
     private static final int MAX_INSTRUCTION_CHARACTERS = 4000;
+    /** 本阶段服务端能力白名单；后续扩展 MCP 等时在此追加。 */
+    private static final Set<String> ALLOWED_CAPABILITIES = Set.of("rag_search");
 
     @Override
     public void validate(DynamicTeamPlanValidationContext context) {
@@ -74,6 +80,53 @@ public class DynamicTeamPlanWorkerValidationRule
             validateText(worker.getInstruction(), MAX_INSTRUCTION_CHARACTERS,
                     "WORKER_INSTRUCTION_INVALID", "Worker 工作说明不能为空或长度超过限制。",
                     path + ".instruction", workerId, context);
+            validateCapabilities(
+                    worker.getNeededCapabilities(),
+                    path + ".neededCapabilities",
+                    workerId,
+                    context);
+        }
+    }
+
+    /**
+     * 校验能力列表：缺省或空合法；仅允许白名单项；空串与重复均拒绝。
+     */
+    private void validateCapabilities(
+            List<String> neededCapabilities,
+            String fieldPath,
+            String workerId,
+            DynamicTeamPlanValidationContext context) {
+        if (neededCapabilities == null || neededCapabilities.isEmpty()) {
+            return;
+        }
+
+        Set<String> seen = new HashSet<>();
+        for (int index = 0; index < neededCapabilities.size(); index++) {
+            String capability = neededCapabilities.get(index);
+            String itemPath = fieldPath + "[" + index + "]";
+            if (blank(capability)) {
+                context.addIssue(DynamicTeamPlanValidationIssueVO.worker(
+                        "CAPABILITY_INVALID",
+                        "neededCapabilities 元素不能为空。",
+                        itemPath,
+                        workerId));
+                continue;
+            }
+            if (!ALLOWED_CAPABILITIES.contains(capability)) {
+                context.addIssue(DynamicTeamPlanValidationIssueVO.worker(
+                        "CAPABILITY_NOT_ALLOWED",
+                        "不支持的 Worker 能力：" + capability + "。",
+                        itemPath,
+                        workerId));
+                continue;
+            }
+            if (!seen.add(capability)) {
+                context.addIssue(DynamicTeamPlanValidationIssueVO.worker(
+                        "CAPABILITY_DUPLICATE",
+                        "neededCapabilities 中能力重复：" + capability + "。",
+                        itemPath,
+                        workerId));
+            }
         }
     }
 

@@ -18,11 +18,11 @@ import cn.bugstack.ai.domain.agent.service.dynamicteam.execution.IDynamicTeamTas
 import cn.bugstack.ai.domain.agent.service.dynamicteam.execution.DynamicTeamTaskSchedulerService;
 import cn.bugstack.ai.domain.agent.service.dynamicteam.planning.validation.DynamicTeamPlanFactory;
 import cn.bugstack.ai.domain.agent.service.dynamicteam.planning.validation.DynamicTeamPlanValidationService;
-import cn.bugstack.ai.domain.agent.service.dynamicteam.planning.validation.DynamicTeamPlanContextValidationRule;
-import cn.bugstack.ai.domain.agent.service.dynamicteam.planning.validation.DynamicTeamPlanDependencyValidationRule;
-import cn.bugstack.ai.domain.agent.service.dynamicteam.planning.validation.DynamicTeamPlanTaskValidationRule;
+import cn.bugstack.ai.domain.agent.service.dynamicteam.planning.validation.rule.DynamicTeamPlanContextValidationRule;
+import cn.bugstack.ai.domain.agent.service.dynamicteam.planning.validation.rule.DynamicTeamPlanDependencyValidationRule;
+import cn.bugstack.ai.domain.agent.service.dynamicteam.planning.validation.rule.DynamicTeamPlanTaskValidationRule;
 import cn.bugstack.ai.domain.agent.service.dynamicteam.planning.validation.DynamicTeamPlanValidator;
-import cn.bugstack.ai.domain.agent.service.dynamicteam.planning.validation.DynamicTeamPlanWorkerValidationRule;
+import cn.bugstack.ai.domain.agent.service.dynamicteam.planning.validation.rule.DynamicTeamPlanWorkerValidationRule;
 import cn.bugstack.ai.domain.agent.service.dynamicteam.run.DynamicTeamRunCoordinatorService;
 import cn.bugstack.ai.domain.agent.service.dynamicteam.worker.DynamicTeamWorkerLifecycleService;
 import org.junit.jupiter.api.Test;
@@ -198,8 +198,10 @@ class DynamicTeamRunCoordinatorServiceTest {
                 new DynamicTeamPlanWorkerValidationRule(),
                 new DynamicTeamPlanTaskValidationRule(),
                 new DynamicTeamPlanDependencyValidationRule());
-        return new DynamicTeamPlanValidationService(
-                validator, new DynamicTeamPlanFactory());
+        DynamicTeamPlanValidationService validationService = new DynamicTeamPlanValidationService();
+        ReflectionTestUtils.setField(validationService, "planValidator", validator);
+        ReflectionTestUtils.setField(validationService, "planFactory", new DynamicTeamPlanFactory());
+        return validationService;
     }
 
     private DynamicTeamTaskSchedulerService scheduler() {
@@ -240,9 +242,11 @@ class DynamicTeamRunCoordinatorServiceTest {
                 "根据用户目标生成初始计划",
                 List.of(
                         new DynamicTeamPlanDraftVO.WorkerDraft(
-                                "worker_a", "分析员", "分析需求", "只输出分析结果"),
+                                "worker_a", "分析员", "分析需求", "只输出分析结果",
+                                null),
                         new DynamicTeamPlanDraftVO.WorkerDraft(
-                                "worker_b", "汇总员", "汇总结论", "基于上游结果汇总")),
+                                "worker_b", "汇总员", "汇总结论", "基于上游结果汇总",
+                                List.of())),
                 List.of(
                         new DynamicTeamPlanDraftVO.TaskDraft(
                                 "task_a", "worker_a", "分析", "分析用户目标",

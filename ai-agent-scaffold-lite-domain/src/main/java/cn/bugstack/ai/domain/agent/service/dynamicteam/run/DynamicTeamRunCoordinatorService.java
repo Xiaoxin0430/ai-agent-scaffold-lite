@@ -137,6 +137,7 @@ public class DynamicTeamRunCoordinatorService
             } finally {
                 contextAggregate.clearExecutionControl(control);
             }
+            
             contextAggregate.recordTaskResults(
                     acceptedPlan.getPlanVersion(),
                     executionReport.getTaskResults());
@@ -281,6 +282,7 @@ public class DynamicTeamRunCoordinatorService
             String threadName,
             DynamicTeamRunTerminationReasonEnum failureReason,
             Callable<T> call) {
+        //起一个单线程池。挂到上下文
         ExecutorService executor = Executors.newSingleThreadExecutor(runnable -> {
             Thread thread = new Thread(runnable, threadName);
             thread.setDaemon(true);
@@ -288,6 +290,7 @@ public class DynamicTeamRunCoordinatorService
         });
         Future<T> future = executor.submit(call);
         context.attachControlCallFuture(future);
+        //限时等待结果
         try {
             return future.get(timeoutNanos, TimeUnit.NANOSECONDS);
         } catch (TimeoutException exception) {

@@ -16,10 +16,8 @@ public class DynamicTeamPlanValidationContext {
 
     private final DynamicTeamPlanValidationCommandEntity command;
     private final List<DynamicTeamPlanValidationIssueVO> issues = new ArrayList<>();
-    private final Map<String, DynamicTeamPlanDraftVO.WorkerDraft> workersById =
-            new LinkedHashMap<>();
-    private final Map<String, DynamicTeamPlanDraftVO.TaskDraft> tasksById =
-            new LinkedHashMap<>();
+    private final Map<String, DynamicTeamPlanDraftVO.WorkerDraft> workersById = new LinkedHashMap<>();
+    private final Map<String, DynamicTeamPlanDraftVO.TaskDraft> tasksById = new LinkedHashMap<>();
 
     public DynamicTeamPlanValidationContext(DynamicTeamPlanValidationCommandEntity command) {
         this.command = command;

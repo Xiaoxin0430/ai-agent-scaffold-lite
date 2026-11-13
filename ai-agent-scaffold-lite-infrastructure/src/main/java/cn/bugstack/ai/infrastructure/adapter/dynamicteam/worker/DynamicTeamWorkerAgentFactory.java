@@ -7,16 +7,18 @@ import cn.bugstack.ai.domain.agent.model.dynamicteam.run.DynamicTeamPromptBundle
 import cn.bugstack.ai.domain.agent.model.dynamicteam.plan.DynamicTeamWorkerVO;
 import cn.bugstack.ai.domain.agent.service.armory.matter.patch.MySpringAI;
 import com.google.adk.agents.LlmAgent;
+import com.google.adk.tools.BaseTool;
 import org.springframework.ai.chat.model.ChatModel;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
 /**
- * 使用后端固定模型创建无工具权限的临时 Worker Agent。
+ * 按正式计划中的 neededCapabilities 为临时 Worker 装配已授权工具。
  */
 @Service
 public class DynamicTeamWorkerAgentFactory
@@ -29,6 +31,9 @@ public class DynamicTeamWorkerAgentFactory
 
     @Resource
     private DynamicTeamPromptBundleVO promptBundle;
+
+    @Resource
+    private DynamicTeamRagSearchToolFactory ragSearchToolFactory;
 
     @Override
     public DynamicTeamWorkerRuntimeEntity create(
@@ -47,7 +52,7 @@ public class DynamicTeamWorkerAgentFactory
                 .model(new DynamicTeamBudgetGuardedLlm(
                         new MySpringAI(chatModel), modelCallBudget))
                 .instruction(promptBundle.getWorkerInstruction())
-                .tools(List.of())
+                .tools(resolveTools(worker))
                 .includeContents(LlmAgent.IncludeContents.NONE)
                 .planning(false)
                 .disallowTransferToParent(true)
@@ -57,6 +62,21 @@ public class DynamicTeamWorkerAgentFactory
         return new DynamicTeamWorkerRuntimeEntity(
                 runId, createdPlanVersion, worker,
                 new DynamicTeamAdkWorkerAgentHandle(agent));
+    }
+
+    /**
+     * 仅装配计划已声明且服务端认识的能力；未声明则工具列表为空。
+     */
+    public List<BaseTool> resolveTools(DynamicTeamWorkerVO worker) {
+        List<BaseTool> tools = new ArrayList<>();
+        List<String> capabilities = worker.getNeededCapabilities();
+        if (capabilities == null || capabilities.isEmpty()) {
+            return List.of();
+        }
+        if (capabilities.contains(DynamicTeamRagSearchFunctions.TOOL_NAME)) {
+            tools.add(ragSearchToolFactory.createTool());
+        }
+        return List.copyOf(tools);
     }
 
     private void validateRequest(

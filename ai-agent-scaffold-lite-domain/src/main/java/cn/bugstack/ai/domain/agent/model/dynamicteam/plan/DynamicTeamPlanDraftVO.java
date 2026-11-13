@@ -28,6 +28,11 @@ public class DynamicTeamPlanDraftVO {
         private String roleName;
         private String responsibility;
         private String instruction;
+        /**
+         * 该 Worker 需要的服务端能力白名单项；缺省或空表示不装配工具。
+         * 本阶段仅约定可出现 {@code rag_search}，具体合法性由校验步骤检查。
+         */
+        private List<String> neededCapabilities;
     }
 
     @Data

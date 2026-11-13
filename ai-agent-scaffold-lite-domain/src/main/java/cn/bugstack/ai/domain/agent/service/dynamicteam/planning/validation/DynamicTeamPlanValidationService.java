@@ -6,6 +6,8 @@ import cn.bugstack.ai.domain.agent.model.dynamicteam.plan.DynamicTeamPlanValidat
 import cn.bugstack.ai.domain.agent.model.dynamicteam.plan.DynamicTeamPlanVO;
 import org.springframework.stereotype.Service;
 
+import javax.annotation.Resource;
+
 import java.util.List;
 
 /**
@@ -15,15 +17,11 @@ import java.util.List;
 public class DynamicTeamPlanValidationService
         implements IDynamicTeamPlanValidationService {
 
-    private final DynamicTeamPlanValidator planValidator;
-    private final DynamicTeamPlanFactory planFactory;
+    @Resource
+    private DynamicTeamPlanValidator planValidator;
 
-    public DynamicTeamPlanValidationService(
-            DynamicTeamPlanValidator planValidator,
-            DynamicTeamPlanFactory planFactory) {
-        this.planValidator = planValidator;
-        this.planFactory = planFactory;
-    }
+    @Resource
+    private DynamicTeamPlanFactory planFactory;
 
     @Override
     public DynamicTeamPlanValidationResultVO validateAndBuild(

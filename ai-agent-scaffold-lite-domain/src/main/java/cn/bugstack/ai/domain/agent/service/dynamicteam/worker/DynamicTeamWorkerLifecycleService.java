@@ -32,11 +32,11 @@ public class DynamicTeamWorkerLifecycleService
             DynamicTeamModelCallBudgetEntity modelCallBudget) {
         validateInitialPlan(plan);
         requireModelCallBudget(modelCallBudget);
-
+        //建空池
         DynamicTeamWorkerPoolEntity pool = new DynamicTeamWorkerPoolEntity(
                 plan.getRunId(), plan.getPlanVersion());
         String currentWorkerId = null;
-
+        //遍历计划中的Worker，创建并添加到池中
         try {
             for (DynamicTeamWorkerVO worker : plan.getWorkers()) {
                 currentWorkerId = worker.getWorkerId();

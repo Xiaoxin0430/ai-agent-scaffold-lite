@@ -14,7 +14,7 @@ import org.springframework.stereotype.Component;
 public class DynamicTeamPlanDraftParser {
 
     private final ObjectMapper strictObjectMapper;
-
+    //复制objectMapper，打开严格开关
     public DynamicTeamPlanDraftParser(ObjectMapper objectMapper) {
         this.strictObjectMapper = objectMapper.copy()
                 .enable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)

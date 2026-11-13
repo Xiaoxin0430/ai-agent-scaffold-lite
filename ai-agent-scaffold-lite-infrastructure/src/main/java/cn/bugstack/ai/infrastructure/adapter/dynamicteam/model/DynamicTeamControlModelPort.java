@@ -8,8 +8,9 @@ import org.springframework.ai.chat.messages.UserMessage;
 import org.springframework.ai.chat.model.ChatModel;
 import org.springframework.ai.chat.model.ChatResponse;
 import org.springframework.ai.chat.prompt.Prompt;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
+
+import javax.annotation.Resource;
 
 /**
  * 使用后端固定 ChatModel 执行无工具的控制角色调用。
@@ -18,12 +19,8 @@ import org.springframework.stereotype.Service;
 @Service
 public class DynamicTeamControlModelPort implements IDynamicTeamControlModelPort {
 
-    private final ChatModel chatModel;
-
-    public DynamicTeamControlModelPort(
-            @Qualifier("controlChatModel") ChatModel chatModel) {
-        this.chatModel = chatModel;
-    }
+    @Resource(name = "controlChatModel")
+    private ChatModel chatModel;
 
     @Override
     public String generate(
@@ -49,6 +46,7 @@ public class DynamicTeamControlModelPort implements IDynamicTeamControlModelPort
                     new SystemMessage(systemInstruction),
                     new UserMessage(dynamicInput)
             );
+
             ChatResponse response = chatModel.call(prompt);
             String output = extractOutput(response);
 

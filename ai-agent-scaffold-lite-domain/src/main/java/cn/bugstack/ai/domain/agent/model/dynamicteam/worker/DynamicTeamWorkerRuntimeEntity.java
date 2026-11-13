@@ -5,6 +5,8 @@ import cn.bugstack.ai.domain.agent.adapter.port.dynamicteam.IDynamicTeamWorkerAg
 import lombok.AccessLevel;
 import lombok.Getter;
 
+import java.util.List;
+
 /**
  * 一次团队运行中的临时 Worker 运行句柄。
  */
@@ -83,11 +85,15 @@ public class DynamicTeamWorkerRuntimeEntity implements AutoCloseable {
     }
 
     private DynamicTeamWorkerVO copyWorker(DynamicTeamWorkerVO worker) {
+        List<String> capabilities = worker.getNeededCapabilities() == null
+                ? List.of()
+                : List.copyOf(worker.getNeededCapabilities());
         return DynamicTeamWorkerVO.builder()
                 .workerId(worker.getWorkerId())
                 .roleName(worker.getRoleName())
                 .responsibility(worker.getResponsibility())
                 .instruction(worker.getInstruction())
+                .neededCapabilities(capabilities)
                 .build();
     }
 

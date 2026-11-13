@@ -8,13 +8,14 @@ import cn.bugstack.ai.domain.agent.model.dynamicteam.plan.DynamicTeamPlanValidat
 import cn.bugstack.ai.domain.agent.model.dynamicteam.run.DynamicTeamRuntimePolicyVO;
 import cn.bugstack.ai.domain.agent.service.dynamicteam.planning.validation.DynamicTeamPlanFactory;
 import cn.bugstack.ai.domain.agent.service.dynamicteam.planning.validation.DynamicTeamPlanValidationService;
-import cn.bugstack.ai.domain.agent.service.dynamicteam.planning.validation.DynamicTeamPlanContextValidationRule;
-import cn.bugstack.ai.domain.agent.service.dynamicteam.planning.validation.DynamicTeamPlanDependencyValidationRule;
-import cn.bugstack.ai.domain.agent.service.dynamicteam.planning.validation.DynamicTeamPlanTaskValidationRule;
+import cn.bugstack.ai.domain.agent.service.dynamicteam.planning.validation.rule.DynamicTeamPlanContextValidationRule;
+import cn.bugstack.ai.domain.agent.service.dynamicteam.planning.validation.rule.DynamicTeamPlanDependencyValidationRule;
+import cn.bugstack.ai.domain.agent.service.dynamicteam.planning.validation.rule.DynamicTeamPlanTaskValidationRule;
 import cn.bugstack.ai.domain.agent.service.dynamicteam.planning.validation.DynamicTeamPlanValidator;
-import cn.bugstack.ai.domain.agent.service.dynamicteam.planning.validation.DynamicTeamPlanWorkerValidationRule;
+import cn.bugstack.ai.domain.agent.service.dynamicteam.planning.validation.rule.DynamicTeamPlanWorkerValidationRule;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.test.util.ReflectionTestUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -36,10 +37,9 @@ class DynamicTeamPlanValidationServiceTest {
                 new DynamicTeamPlanTaskValidationRule(),
                 new DynamicTeamPlanDependencyValidationRule()
         );
-        validationService = new DynamicTeamPlanValidationService(
-                validator,
-                new DynamicTeamPlanFactory()
-        );
+        validationService = new DynamicTeamPlanValidationService();
+        ReflectionTestUtils.setField(validationService, "planValidator", validator);
+        ReflectionTestUtils.setField(validationService, "planFactory", new DynamicTeamPlanFactory());
     }
 
     @Test
@@ -57,6 +57,10 @@ class DynamicTeamPlanValidationServiceTest {
         assertNull(result.getAcceptedPlan().getPreviousPlanVersion());
         assertEquals(2, result.getAcceptedPlan().getWorkers().size());
         assertEquals(2, result.getAcceptedPlan().getTasks().size());
+        assertEquals(List.of(),
+                result.getAcceptedPlan().getWorkers().get(0).getNeededCapabilities());
+        assertEquals(List.of("rag_search"),
+                result.getAcceptedPlan().getWorkers().get(1).getNeededCapabilities());
 
         draft.getWorkers().get(0).setRoleName("已修改的草稿角色");
         assertEquals("需求分析师",
@@ -66,7 +70,7 @@ class DynamicTeamPlanValidationServiceTest {
     @Test
     void shouldCollectMultipleValidationIssues() {
         DynamicTeamPlanDraftVO.WorkerDraft worker = new DynamicTeamPlanDraftVO.WorkerDraft(
-                "Bad-Worker", "", "", ""
+                "Bad-Worker", "", "", "", null
         );
         DynamicTeamPlanDraftVO.TaskDraft task = new DynamicTeamPlanDraftVO.TaskDraft(
                 "Bad-Task", "missing_worker", "", "", "", List.of(), null
@@ -102,6 +106,49 @@ class DynamicTeamPlanValidationServiceTest {
         assertTrue(hasIssue(result, "TASK_DEPENDENCY_CYCLE"));
     }
 
+    @Test
+    void shouldAcceptEmptyNeededCapabilities() {
+        DynamicTeamPlanDraftVO draft = validDraft();
+        draft.getWorkers().get(1).setNeededCapabilities(List.of());
+
+        DynamicTeamPlanValidationResultVO result = validationService.validateAndBuild(
+                initialCommand(draft)
+        );
+
+        assertTrue(result.isValid());
+        assertEquals(List.of(),
+                result.getAcceptedPlan().getWorkers().get(1).getNeededCapabilities());
+    }
+
+    @Test
+    void shouldRejectDisallowedCapability() {
+        DynamicTeamPlanDraftVO draft = validDraft();
+        draft.getWorkers().get(0).setNeededCapabilities(List.of("mcp_shell"));
+
+        DynamicTeamPlanValidationResultVO result = validationService.validateAndBuild(
+                initialCommand(draft)
+        );
+
+        assertFalse(result.isValid());
+        assertNull(result.getAcceptedPlan());
+        assertTrue(hasIssue(result, "CAPABILITY_NOT_ALLOWED"));
+    }
+
+    @Test
+    void shouldRejectBlankAndDuplicateCapabilities() {
+        DynamicTeamPlanDraftVO draft = validDraft();
+        draft.getWorkers().get(1).setNeededCapabilities(
+                List.of("rag_search", "", "rag_search"));
+
+        DynamicTeamPlanValidationResultVO result = validationService.validateAndBuild(
+                initialCommand(draft)
+        );
+
+        assertFalse(result.isValid());
+        assertTrue(hasIssue(result, "CAPABILITY_INVALID"));
+        assertTrue(hasIssue(result, "CAPABILITY_DUPLICATE"));
+    }
+
     private DynamicTeamPlanValidationCommandEntity initialCommand(
             DynamicTeamPlanDraftVO draft) {
         return DynamicTeamPlanValidationCommandEntity.builder()
@@ -132,13 +179,15 @@ class DynamicTeamPlanValidationServiceTest {
                 "requirement_analyst",
                 "需求分析师",
                 "分析目标、约束和验收条件",
-                "只分析需求，不编写最终方案"
+                "只分析需求，不编写最终方案",
+                null
         ));
         workers.add(new DynamicTeamPlanDraftVO.WorkerDraft(
                 "solution_designer",
                 "方案设计师",
                 "根据需求分析设计方案",
-                "基于上游结果输出技术方案"
+                "基于上游结果输出技术方案",
+                List.of("rag_search")
         ));
 
         List<DynamicTeamPlanDraftVO.TaskDraft> tasks = new ArrayList<>();

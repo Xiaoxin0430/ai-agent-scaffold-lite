@@ -1,4 +1,6 @@
-package cn.bugstack.ai.domain.agent.service.dynamicteam.planning.validation;
+package cn.bugstack.ai.domain.agent.service.dynamicteam.planning.validation.rule;
+
+import cn.bugstack.ai.domain.agent.service.dynamicteam.planning.validation.DynamicTeamPlanValidationContext;
 
 import cn.bugstack.ai.domain.agent.model.dynamicteam.plan.DynamicTeamPlanDraftVO;
 import cn.bugstack.ai.domain.agent.model.dynamicteam.plan.DynamicTeamPlanValidationIssueVO;
@@ -44,6 +46,7 @@ public class DynamicTeamPlanDependencyValidationRule
             DynamicTeamPlanValidationContext context,
             Map<String, Integer> inDegrees,
             Map<String, List<String>> outgoing) {
+
         List<String> dependencies = task.getDependsOn();
         if (dependencies == null) {
             return;

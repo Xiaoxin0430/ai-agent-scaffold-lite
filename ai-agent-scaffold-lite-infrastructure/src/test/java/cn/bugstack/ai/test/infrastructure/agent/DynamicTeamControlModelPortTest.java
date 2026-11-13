@@ -5,6 +5,7 @@ import cn.bugstack.ai.infrastructure.adapter.dynamicteam.model.DynamicTeamContro
 import org.junit.jupiter.api.Test;
 import org.springframework.ai.chat.model.ChatModel;
 import org.springframework.ai.chat.model.ChatResponse;
+import org.springframework.test.util.ReflectionTestUtils;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -17,7 +18,8 @@ class DynamicTeamControlModelPortTest {
 
     @Test
     void rejectsSuccessfulHttpCallWithoutModelText() {
-        DynamicTeamControlModelPort port = new DynamicTeamControlModelPort(mock(ChatModel.class));
+        DynamicTeamControlModelPort port = new DynamicTeamControlModelPort();
+        ReflectionTestUtils.setField(port, "chatModel", mock(ChatModel.class));
 
         IllegalStateException failure = assertThrows(IllegalStateException.class,
                 () -> port.generate(DynamicTeamControlRoleEnum.PLANNER, "system", "goal"));
@@ -32,7 +34,8 @@ class DynamicTeamControlModelPortTest {
         when(response.getResult().getOutput().getText()).thenReturn("  ");
         when(model.call(any(org.springframework.ai.chat.prompt.Prompt.class))).thenReturn(response);
 
-        DynamicTeamControlModelPort port = new DynamicTeamControlModelPort(model);
+        DynamicTeamControlModelPort port = new DynamicTeamControlModelPort();
+        ReflectionTestUtils.setField(port, "chatModel", model);
         assertThrows(IllegalStateException.class,
                 () -> port.generate(DynamicTeamControlRoleEnum.PLANNER, "system", "goal"));
     }

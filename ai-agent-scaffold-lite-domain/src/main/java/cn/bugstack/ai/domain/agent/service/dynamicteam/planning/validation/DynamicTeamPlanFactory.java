@@ -20,12 +20,17 @@ public class DynamicTeamPlanFactory {
         DynamicTeamPlanDraftVO draft = command.getPlanDraft();
         DynamicTeamPlanVO previousPlan = command.getPreviousPlan();
 
-        int planVersion = previousPlan == null
-                ? 1
-                : previousPlan.getPlanVersion() + 1;
-        Integer previousPlanVersion = previousPlan == null
-                ? null
-                : previousPlan.getPlanVersion();
+        int planVersion;
+        Integer previousPlanVersion;
+        if (previousPlan == null) {
+            // 第一次规划：版本从 1 开始，没有上一版
+            planVersion = 1;
+            previousPlanVersion = null;
+        } else {
+            // 重新规划：版本号在上一版基础上 +1，并记录上一版版本号
+            planVersion = previousPlan.getPlanVersion() + 1;
+            previousPlanVersion = previousPlan.getPlanVersion();
+        }
 
         return DynamicTeamPlanVO.builder()
                 .runId(command.getRunId())
@@ -49,10 +54,19 @@ public class DynamicTeamPlanFactory {
                     .roleName(workerDraft.getRoleName())
                     .responsibility(workerDraft.getResponsibility())
                     .instruction(workerDraft.getInstruction())
+                    .neededCapabilities(copyCapabilities(
+                            workerDraft.getNeededCapabilities()))
                     .build());
         }
 
         return List.copyOf(workers);
+    }
+
+    private List<String> copyCapabilities(List<String> neededCapabilities) {
+        if (neededCapabilities == null || neededCapabilities.isEmpty()) {
+            return List.of();
+        }
+        return List.copyOf(neededCapabilities);
     }
 
     private List<DynamicTeamTaskVO> convertTasks(
